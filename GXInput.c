@@ -754,7 +754,7 @@ int load_input_as_json_text ( GXInput_t **pp_input, char *text )
     #endif
 
     // Initialized data
-    JSONValue_t *p_value = 0;
+    json_value *p_value = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json_value;
@@ -802,7 +802,7 @@ int load_input_as_json_text ( GXInput_t **pp_input, char *text )
     }
 }
 
-int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
+int load_input_as_json_value ( GXInput_t **pp_input, json_value *p_value )
 {
 
     // Argument check
@@ -813,12 +813,12 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
 
     // Initialized data
     GXInput_t   *p_input             = 0;
-    JSONValue_t *p_name              = 0,
+    json_value *p_name              = 0,
                 *p_mouse_sensitivity = 0,
                 *p_binds             = 0;
 
     // Parse the JSON
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -839,7 +839,7 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
     }
 
     // Parse the input as a path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load the input as a path
@@ -862,7 +862,7 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
         p_input = *pp_input;
 
         // Copy the name
-        if ( p_name->type == JSONstring)
+        if ( p_name->type == JSON_VALUE_STRING)
         {
 
             // Initialized data
@@ -882,18 +882,18 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
             goto wrong_name_type;
 
         // Set the mouse sense
-        if ( p_mouse_sensitivity->type == JSONfloat )
-            p_input->mouse_sensitivity = (float) p_mouse_sensitivity->floating;
+        if ( p_mouse_sensitivity->type == JSON_VALUE_NUMBER )
+            p_input->mouse_sensitivity = (float) p_mouse_sensitivity->number;
         // Default
         else
             goto wrong_mouse_sensitivity_type;
 
         // Parse the binds
-        if ( p_binds->type == JSONarray )
+        if ( p_binds->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
-            JSONValue_t **pp_elements          = 0;
+            json_value **pp_elements          = 0;
             size_t        vector_element_count = 0;
 
             // Get the contents of the array
@@ -903,7 +903,7 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
                 array_get(p_binds->list, 0, &vector_element_count );
 
                 // Allocate an array for the elements
-                pp_elements = calloc(vector_element_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(vector_element_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -925,7 +925,7 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
             {
 
                 // Initialized data
-                JSONValue_t *i_element = pp_elements[i];
+                json_value *i_element = pp_elements[i];
                 GXBind_t    *p_bind    = 0;
 
                 // Load the bind from the JSON value
@@ -1031,7 +1031,7 @@ int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value )
     }
 }
 
-int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value )
+int load_bind_as_json_value ( GXBind_t **pp_bind, json_value *p_value )
 {
     
     // Argument check
@@ -1042,11 +1042,11 @@ int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value )
 
     // Initialized data
     GXBind_t    *p_bind = 0;
-    JSONValue_t *p_name = 0,
+    json_value *p_name = 0,
                 *p_keys = 0;
 
     // Parse the bind as an object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -1083,7 +1083,7 @@ int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value )
         p_bind = *pp_bind;
 
         // Copy the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -1103,11 +1103,11 @@ int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value )
             goto wrong_name_type;
 
         // Parse the keys
-        if ( p_keys->type == JSONarray )
+        if ( p_keys->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
-            JSONValue_t **pp_elements  = 0;
+            json_value **pp_elements  = 0;
 
             // Dump the array
             {
@@ -1116,7 +1116,7 @@ int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value )
                 array_get(p_keys->list, 0, &keys_count );
 
                 // Allocate an array for the elements
-                pp_elements = calloc(keys_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(keys_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -1133,12 +1133,12 @@ int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value )
             {
 
                 // Initialized data
-                JSONValue_t *i_element = pp_elements[i];
+                json_value *i_element = pp_elements[i];
                 size_t  key_len = 0;
                 char   *key     = 0;
 
                 // Copy the name
-                if ( i_element->type == JSONstring )
+                if ( i_element->type == JSON_VALUE_STRING )
                 {
                     // Compute the length of the string
                     key_len = strlen(i_element->string);

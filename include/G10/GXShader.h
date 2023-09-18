@@ -168,7 +168,7 @@ DLLEXPORT int load_shader_as_json_text ( GXShader_t **pp_shader, char* text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value );
+DLLEXPORT int load_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value );
 
 DLLEXPORT int use_shader ( GXShader_t *p_shader );
 

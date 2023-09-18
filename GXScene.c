@@ -150,7 +150,7 @@ int load_scene_as_json_text ( GXScene_t **pp_scene, char *text )
 
     // Initialized data
     GXInstance_t *p_instance = g_get_active_instance();
-    JSONValue_t  *p_value    = 0;
+    json_value  *p_value    = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json_value;
@@ -207,7 +207,7 @@ int load_scene_as_json_text ( GXScene_t **pp_scene, char *text )
     }
 }
 
-int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
+int load_scene_as_json_value ( GXScene_t **pp_scene, json_value *p_value )
 {
 
     // Argument check
@@ -219,7 +219,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
     // Initialized data
     GXInstance_t *p_instance           = g_get_active_instance();
     GXScene_t    *p_scene              = 0;
-    JSONValue_t  *p_name_value         = 0,
+    json_value  *p_name_value         = 0,
                  *p_entities_value     = 0,
                  *p_cameras_value      = 0,
                  *p_lights_value       = 0,
@@ -227,7 +227,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
                  *p_light_probes_value = 0;
 
     // Parse the scene as a JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -250,7 +250,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
             goto missing_properties;
     }
     // Parse the scene as a file path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load the scene as a path
@@ -270,7 +270,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
         if ( create_scene(&p_scene) == 0 ) goto failed_to_allocate_scene;
 
         // Set the name
-        if ( p_name_value->type == JSONstring )
+        if ( p_name_value->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -294,13 +294,13 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
         {
 
             // Parse the entities as an array
-            if ( p_entities_value->type == JSONarray )
+            if ( p_entities_value->type == JSON_VALUE_ARRAY )
             {
 
                 // Initialized data
                 GXThread_t  **entity_loading_threads = calloc(p_instance->loading_thread_count, sizeof(void *));
                 size_t        len                    = 0;
-                JSONValue_t **pp_entities            = 0;
+                json_value **pp_entities            = 0;
 
                 // This is used when creating loading threads
                 extern int load_entity_from_queue(void *vp_instance);
@@ -312,7 +312,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
                     array_get(p_entities_value->list, 0, &len);
 
                     // Allocate memory for entities
-                    pp_entities = calloc(len+1, sizeof(JSONValue_t *));
+                    pp_entities = calloc(len+1, sizeof(json_value *));
 
                     // Error check
                     if ( pp_entities == (void *) 0 ) goto no_mem;
@@ -381,12 +381,12 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
         {
 
             // Parse the cameras as an array
-            if ( p_cameras_value->type == JSONarray )
+            if ( p_cameras_value->type == JSON_VALUE_ARRAY )
             {
 
                 // Initialized data
                 size_t        len        = 0;
-                JSONValue_t **pp_cameras = 0;
+                json_value **pp_cameras = 0;
 
                 // Get the array contents
                 {
@@ -395,7 +395,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
                     array_get(p_cameras_value->list, 0, &len);
 
                     // Allocate memory for entities
-                    pp_cameras = calloc(len+1, sizeof(JSONValue_t *));
+                    pp_cameras = calloc(len+1, sizeof(json_value *));
 
                     // Error check
                     if ( pp_cameras == (void *) 0 ) goto no_mem;
@@ -422,7 +422,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
                 }
             }
             // Parse the cameras as an object
-            else if ( p_cameras_value->type == JSONobject )
+            else if ( p_cameras_value->type == JSON_VALUE_OBJECT )
             {
 
                 // Initialized data
@@ -448,7 +448,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
         {
             
             // Parse the lights as an array
-            if ( p_lights_value->type == JSONarray )
+            if ( p_lights_value->type == JSON_VALUE_ARRAY )
             {
                 // TODO:
             }
@@ -462,7 +462,7 @@ int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value )
         {
 
             // Parse the light probes as an array
-            if ( p_lights_value->type == JSONarray )
+            if ( p_lights_value->type == JSON_VALUE_ARRAY )
             {
                 // TODO: 
             }
@@ -891,13 +891,13 @@ int scene_info ( GXScene_t *p_scene )
     // TODO: Fix
     
     // Get the callback function associated with the current state
-    dict_foreach(p_scene->entities, ( void (*)(void*) ) entity_info);
+    dict_foreach(p_scene->entities, ( void (*)(const void* const , size_t) ) entity_info);
 
     // Formatting
     g_print_log("\ncameras  :\n");
 
     // Print each camera
-    dict_foreach(p_scene->cameras, ( void (*)(void*) ) print_camera);
+    dict_foreach(p_scene->cameras, ( void (*)(const void*const, size_t ) ) print_camera);
 
     // Formatting
     g_print_log("\n");

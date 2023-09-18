@@ -157,7 +157,7 @@ int load_ai_as_json_text ( GXAI_t **pp_ai, char *text )
     #endif
 
     // Initialized data
-    JSONValue_t *p_value = 0;
+    json_value *p_value = 0;
 
     // Parse the text into a JSON value
     if ( parse_json_value(text, 0, &p_value)   == 0 ) goto failed_to_parse_json;
@@ -219,7 +219,7 @@ int load_ai_as_json_text ( GXAI_t **pp_ai, char *text )
     }
 }
 
-int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
+int load_ai_as_json_value ( GXAI_t **pp_ai, json_value *p_value )
 {
 
     // Argument check
@@ -230,13 +230,13 @@ int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
 
     // Initialized data
     GXInstance_t  *p_instance      = g_get_active_instance();
-    JSONValue_t   *p_name          = 0,
+    json_value   *p_name          = 0,
                   *p_initial_state = 0,
                   *p_states        = 0,
                  **pp_states       = 0;
 
     // Parse the AI as an object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -259,11 +259,11 @@ int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
         goto wrong_type;
 
     // Parse the AI as a path
-    if ( p_name->type == JSONstring )
+    if ( p_name->type == JSON_VALUE_STRING )
     {
 
         // Error check
-        if ( p_initial_state->type == JSONstring ) goto wrong_initial_state_type;
+        if ( p_initial_state->type == JSON_VALUE_STRING ) goto wrong_initial_state_type;
 
         // Initialized data
         GXAI_t* p_ai = 0;
@@ -314,7 +314,7 @@ int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
         }
 
         // Initialize each AI state, and set the initial state
-        if ( p_states->type == JSONarray )
+        if ( p_states->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
@@ -327,7 +327,7 @@ int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
                 array_get(p_states->list, 0, &state_count );
 
                 // Allocate an array for the states
-                pp_states = calloc(state_count, sizeof(JSONValue_t *));
+                pp_states = calloc(state_count, sizeof(json_value *));
 
                 // Error check
                 if ( pp_states == (void *) 0 ) goto no_mem;
@@ -344,14 +344,14 @@ int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
             {
 
                 // Initialized data
-                size_t  state_len  = strlen(((JSONValue_t *)pp_states[i])->string);
+                size_t  state_len  = strlen(((json_value *)pp_states[i])->string);
                 char   *state_name = calloc(state_len + 1, sizeof(char));
 
                 // Error check
                 if ( state_name == (void *) 0 ) goto no_mem;
 
                 // Copy the name of the state from the array
-                strncpy(state_name, ((JSONValue_t *)pp_states[i])->string, state_len);
+                strncpy(state_name, ((json_value *)pp_states[i])->string, state_len);
 
                 // Copy the initial state
                 if ( strcmp(state_name, p_initial_state->string) == 0 )
@@ -377,7 +377,7 @@ int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value )
         // Set the initial state
         set_initial_state:
 
-        if ( p_initial_state->type == JSONstring )
+        if ( p_initial_state->type == JSON_VALUE_STRING )
             p_ai->current_state = p_initial_state->string; // Same char * stored in the states dict
 
         // Return the AI to the caller
@@ -881,7 +881,7 @@ int destroy_ai ( GXAI_t **pp_ai )
     // Free each key from the dictionary
     if ( p_ai->states != 0 )
     {
-        dict_free_clear(p_ai->states, &free);
+        dict_free_clear(p_ai->states, ((void(*)(const void*))&free));
 
         dict_destroy(&p_ai->states);
     }

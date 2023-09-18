@@ -11,12 +11,12 @@
 #define DESCRIPTOR_TYPE_CONSTRUCTORS  11
 
 // Forward declarations
-int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value );
-int load_compute_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value );
-int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value );
-int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value );
-int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value );
-int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, JSONValue_t *p_value );
+int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value );
+int load_compute_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value );
+int load_ray_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value );
+int load_layout_as_json_value ( GXLayout_t **pp_layout, json_value *p_value );
+int load_set_as_json_value ( GXSet_t **pp_set, json_value *p_value );
+int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, json_value *p_value );
 int destroy_graphics_shader ( GXShader_t **pp_shader );
 int destroy_compute_shader ( GXShader_t **pp_shader );
 int destroy_ray_shader ( GXShader_t **pp_shader );
@@ -833,7 +833,7 @@ int load_shader_as_json_text ( GXShader_t **pp_shader, char *text )
     #endif
 
     // Initialized data
-    JSONValue_t *p_value = 0;
+    json_value *p_value = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto no_mem;
@@ -894,7 +894,7 @@ int load_shader_as_json_text ( GXShader_t **pp_shader, char *text )
     }
 }
 
-int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
+int load_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value )
 {
 
     // Argument check
@@ -906,7 +906,7 @@ int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
     // Initialized data
     GXInstance_t  *p_instance                  = g_get_active_instance();
     GXShader_t    *p_shader                    = 0;
-    JSONValue_t   *p_type                      = 0,
+    json_value   *p_type                      = 0,
                   *p_name                      = 0,
                   *p_vertex_shader_path        = 0,
                   *p_geometry_shader_path      = 0,
@@ -924,7 +924,7 @@ int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
     size_t         set_count                   = 0;
 
     // Load a shader as a JSON object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -938,7 +938,7 @@ int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
         {
 
             // Check for the right type
-            if ( p_name->type == JSONstring )
+            if ( p_name->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -969,7 +969,7 @@ int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
         {
 
             // Get a function pointer from the lookup table
-            int (*pipeline_load_as_json_value)(GXShader_t **pp_shader, JSONValue_t *p_value) = dict_get(pipeline_loader_lookup_tables, p_type->string);
+            int (*pipeline_load_as_json_value)(GXShader_t **pp_shader, json_value *p_value) = dict_get(pipeline_loader_lookup_tables, p_type->string);
 
             // If the function is valid...
             if ( pipeline_load_as_json_value )
@@ -981,7 +981,7 @@ int load_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
             goto unrecognized_type;
     }
     // Load the shader as a path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load the shader as a path
@@ -1320,10 +1320,10 @@ int destroy_shader ( GXShader_t **pp_shader )
     }
 }
 
-int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
+int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value )
 {
     // Argument notes
-    // p_value will always be valid. p_value->type will always be JSONobject
+    // p_value will always be valid. p_value->type will always be JSON_VALUE_OBJECT
 
     // Argument check
     #ifndef NDEBUG
@@ -1333,7 +1333,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
     // Initialized data
     GXInstance_t *p_instance                            = g_get_active_instance();
     GXShader_t   *p_shader                              = 0;
-    JSONValue_t  *p_name                                = 0,
+    json_value  *p_name                                = 0,
                  *p_vertex_shader_path                  = 0,
                  *p_tessellation_control_shader_path    = 0,
                  *p_tessellation_evaluation_shader_path = 0,
@@ -1388,7 +1388,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
         p_shader->type = g10_pipeline_graphics;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -1420,7 +1420,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the vertex shader path as a string
-                if ( p_vertex_shader_path->type == JSONstring )
+                if ( p_vertex_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t vertex_shader_data_len = g_load_file(p_vertex_shader_path->string, 0, true);
@@ -1447,7 +1447,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the tessellation control shader path as a string
-                if ( p_tessellation_control_shader_path->type == JSONstring )
+                if ( p_tessellation_control_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t tessellation_control_shader_data_len = g_load_file(p_tessellation_control_shader_path->string, 0, true);
@@ -1474,7 +1474,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the tessellation evaluation shader path as a string
-                if ( p_tessellation_evaluation_shader_path->type == JSONstring )
+                if ( p_tessellation_evaluation_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t tessellation_evaluation_shader_data_len = g_load_file(p_tessellation_evaluation_shader_path->string, 0, true);
@@ -1501,7 +1501,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the geometry shader path as a string
-                if ( p_geometry_shader_path->type == JSONstring )
+                if ( p_geometry_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t geometry_shader_data_len = g_load_file(p_geometry_shader_path->string, 0, true);
@@ -1528,7 +1528,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the task shader path as a string
-                if ( p_task_shader_path->type == JSONstring )
+                if ( p_task_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t task_shader_data_len = g_load_file(p_task_shader_path->string, 0, true);
@@ -1555,7 +1555,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the mesh shader path as a string
-                if ( p_mesh_shader_path->type == JSONstring )
+                if ( p_mesh_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t mesh_shader_data_len = g_load_file(p_mesh_shader_path->string, 0, true);
@@ -1582,7 +1582,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the fragment shader path as a string
-                if ( p_fragment_shader_path->type == JSONstring )
+                if ( p_fragment_shader_path->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t fragment_shader_data_len = g_load_file(p_fragment_shader_path->string, 0, true);
@@ -1630,7 +1630,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             VkViewport                              viewport                            = { 0 };
             VkRect2D                                scissor                             = { 0 };
             VkVertexInputAttributeDescription      *vertex_input_attribute_descriptions = 0;
-            JSONValue_t                            *p_topology                          = 0;
+            json_value                            *p_topology                          = 0;
 
             //////////////////////////////
             // Set up the shader stages //
@@ -1733,14 +1733,14 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             ///////////////////////////////////
             // Set up the vertex input state //
             ///////////////////////////////////
-            if ( p_in->type == JSONobject )
+            if ( p_in->type == JSON_VALUE_OBJECT )
             {
 
                 // Initialized data
                 size_t       vertex_group_count        = 0,
                              stride                    = 0,
                              binding_description_count = 0;
-                JSONValue_t *p_vertex_attributes       = 0;
+                json_value *p_vertex_attributes       = 0;
 
                 // Parse the JSON object
                 {
@@ -1761,21 +1761,21 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                 }
 
                 // Did the user specify vertex groups?
-                if ( p_vertex_attributes->type == JSONarray )
+                if ( p_vertex_attributes->type == JSON_VALUE_ARRAY )
                 {
 
                     // Initialized data
-                    JSONValue_t **pp_vertex_groups = 0;
+                    json_value **pp_vertex_groups = 0;
 
                     // Get the contents of the array
-                    if ( p_vertex_attributes->type == JSONarray )
+                    if ( p_vertex_attributes->type == JSON_VALUE_ARRAY )
                     {
 
                         // Get the array size
                         array_get(p_vertex_attributes->list, 0, &vertex_group_count);
 
                         // Allocate for vertex group JSON values
-                        pp_vertex_groups = calloc(vertex_group_count+1, sizeof(JSONValue_t *));
+                        pp_vertex_groups = calloc(vertex_group_count+1, sizeof(json_value *));
 
                         // Error check
                         if ( pp_vertex_groups == (void *) 0 ) goto no_mem;
@@ -1795,11 +1795,11 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         dict *vertex_group = 0;
                         char *input_attribute_type = 0;
                         signed input_attribute_location = 0;
-                        JSONValue_t *p_vertex_group = pp_vertex_groups[i],
+                        json_value *p_vertex_group = pp_vertex_groups[i],
                                     *p_input_attribute_type = 0;
 
                         // Parse the JSON value
-                        if ( p_vertex_group->type == JSONobject )
+                        if ( p_vertex_group->type == JSON_VALUE_OBJECT )
                         {
 
                             // Initialized data
@@ -1815,10 +1815,10 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         else
                             goto vertex_group_wrong_type;
 
-                        if ( p_input_attribute_type->type == JSONstring )
+                        if ( p_input_attribute_type->type == JSON_VALUE_STRING )
                             input_attribute_type = p_input_attribute_type->string;
 
-                        if ( p_input_attribute_type->type == JSONinteger )
+                        if ( p_input_attribute_type->type == JSON_VALUE_INTEGER )
                             input_attribute_location = i;
 
                         // Construct a vertex input attribute
@@ -1926,12 +1926,12 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the multisampler as a JSON object
-                if ( p_rasterizer->type == JSONobject )
+                if ( p_rasterizer->type == JSON_VALUE_OBJECT )
                 {
 
                     // Initialized data
                     VkPolygonMode polygon_mode                 = VK_POLYGON_MODE_FILL;
-                    JSONValue_t  *p_line_width                 = 0,
+                    json_value  *p_line_width                 = 0,
                                  *p_depth_bias_constant_factor = 0,
                                  *p_depth_bias_clamp           = 0,
                                  *p_depth_bias_slope_factor    = 0,
@@ -1972,8 +1972,8 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_line_width->type == JSONfloat )
-                                line_width = (float) p_line_width->floating;
+                            if ( p_line_width->type == JSON_VALUE_NUMBER )
+                                line_width = (float) p_line_width->number;
                             // Default
                             else
                                 goto no_rasterizer_line_width;
@@ -1983,8 +1983,8 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_depth_bias_constant_factor->type == JSONfloat )
-                                depth_bias_constant_factor = (float) p_depth_bias_constant_factor->floating;
+                            if ( p_depth_bias_constant_factor->type == JSON_VALUE_NUMBER )
+                                depth_bias_constant_factor = (float) p_depth_bias_constant_factor->number;
                             // Default
                             else
                                 goto no_rasterizer_depth_bias_constant_factor;
@@ -1994,8 +1994,8 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_depth_bias_clamp->type == JSONfloat )
-                                depth_bias_clamp = (float) p_depth_bias_clamp->floating;
+                            if ( p_depth_bias_clamp->type == JSON_VALUE_NUMBER )
+                                depth_bias_clamp = (float) p_depth_bias_clamp->number;
                             // Default
                             else
                                 goto no_rasterizer_depth_bias_clamp;
@@ -2005,8 +2005,8 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_depth_bias_slope_factor->type == JSONfloat )
-                                depth_bias_slope_factor = (float) p_depth_bias_slope_factor->floating;
+                            if ( p_depth_bias_slope_factor->type == JSON_VALUE_NUMBER )
+                                depth_bias_slope_factor = (float) p_depth_bias_slope_factor->number;
                             // Default
                             else
                                 goto no_rasterizer_depth_bias_slope_factor;
@@ -2016,7 +2016,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_depth_clamp_enable->type == JSONboolean )
+                            if ( p_depth_clamp_enable->type == JSON_VALUE_BOOLEAN )
                                 depth_clamp_enable = p_depth_clamp_enable->boolean;
                             // Default
                             else
@@ -2027,7 +2027,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_rasterizer_discard_enable->type == JSONboolean )
+                            if ( p_rasterizer_discard_enable->type == JSON_VALUE_BOOLEAN )
                                 rasterizer_discard_enable = p_rasterizer_discard_enable->boolean;
                             // Default
                             else
@@ -2038,7 +2038,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_clockwise->type == JSONboolean )
+                            if ( p_clockwise->type == JSON_VALUE_BOOLEAN )
                                 clockwise = p_clockwise->boolean;
                             // Default
                             else
@@ -2049,7 +2049,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         {
 
                             // Check for the right type
-                            if ( p_depth_bias_enable->type == JSONboolean )
+                            if ( p_depth_bias_enable->type == JSON_VALUE_BOOLEAN )
                                 depth_bias_enable = p_depth_bias_enable->boolean;
                             // Default
                             else
@@ -2109,11 +2109,11 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
             {
 
                 // Parse the multisampler as a JSON object
-                if ( p_multisampler->type == JSONobject )
+                if ( p_multisampler->type == JSON_VALUE_OBJECT )
                 {
 
                     // Initialized data
-                    JSONValue_t *p_samples                  = 0,
+                    json_value *p_samples                  = 0,
                                 *p_sample_shading_enable    = 0,
                                 *p_minimum_sample_shading   = 0,
                                 *p_alpha_to_coverage_enable = 0,
@@ -2143,7 +2143,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
                         if ( p_samples )
                         {
-                            if ( p_samples->type == JSONinteger )
+                            if ( p_samples->type == JSON_VALUE_INTEGER )
                                 samples = (signed int) p_samples->integer;
                             else
                                 goto no_multisampler_samples;
@@ -2151,7 +2151,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
                         if ( p_sample_shading_enable )
                         {
-                            if ( p_sample_shading_enable->type == JSONboolean )
+                            if ( p_sample_shading_enable->type == JSON_VALUE_BOOLEAN )
                                 sample_shading_enable = p_sample_shading_enable->boolean;
                             else
                                 goto no_multisampler_sample_shading_enable;
@@ -2159,7 +2159,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
                         if ( p_alpha_to_coverage_enable )
                         {
-                            if ( p_alpha_to_coverage_enable->type == JSONboolean )
+                            if ( p_alpha_to_coverage_enable->type == JSON_VALUE_BOOLEAN )
                                 alpha_to_coverage_enable = p_alpha_to_coverage_enable->boolean;
                             else
                                 goto no_multisampler_alpha_to_coverage_enable;
@@ -2167,7 +2167,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
                         if ( p_alpha_to_one_enable )
                         {
-                            if ( p_alpha_to_one_enable->type == JSONboolean )
+                            if ( p_alpha_to_one_enable->type == JSON_VALUE_BOOLEAN )
                                 alpha_to_one_enable = p_alpha_to_one_enable->boolean;
                             else
                                 goto no_multisampler_alpha_to_one_enable;
@@ -2175,8 +2175,8 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
                         if ( p_minimum_sample_shading )
                         {
-                            if ( p_minimum_sample_shading->type == JSONfloat )
-                                minimum_sample_shading = (float) p_minimum_sample_shading->floating;
+                            if ( p_minimum_sample_shading->type == JSON_VALUE_NUMBER )
+                                minimum_sample_shading = (float) p_minimum_sample_shading->number;
                             else
                                 goto no_minimum_sample_shading;
                         }
@@ -2237,13 +2237,13 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
             // TODO: Parse as "attachments" property
 
-            if ( p_attachments->type == JSONarray )
+            if ( p_attachments->type == JSON_VALUE_ARRAY )
             {
 
                 // Initialized data
                 dict         *attachments            = p_instance->context.loading_renderer->current_render_pass->attachments;
                 size_t        attachments_count      = 0;
-                JSONValue_t **pp_attachments         = 0;
+                json_value **pp_attachments         = 0;
                 size_t        attachment_names_count = dict_values(attachments, 0);
                 char        **pp_attachment_names    = 0;
 
@@ -2254,7 +2254,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                     attachments_count = array_get(p_attachments->list, 0, &attachments_count);
 
                     // Allocate memory for an array
-                    pp_attachments = calloc(attachments_count, sizeof(JSONValue_t *));
+                    pp_attachments = calloc(attachments_count, sizeof(json_value *));
 
                     // Error check
                     if ( pp_attachments == (void *) 0 ) goto no_mem;
@@ -2280,7 +2280,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                 {
 
                     // Initialized data
-                    JSONValue_t *i_attachment_value               = pp_attachments[i],
+                    json_value *i_attachment_value               = pp_attachments[i],
                                 *p_blend_enable                   = 0,
                                 *p_source_color_blend_factor      = 0,
                                 *p_destination_color_blend_factor = 0,
@@ -2331,43 +2331,43 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         VkColorComponentFlags color_write_mask       = 0;
 
                         // Set the blend enable
-                        if ( p_blend_enable->type == JSONboolean )
+                        if ( p_blend_enable->type == JSON_VALUE_BOOLEAN )
                             blend_enable = p_blend_enable->boolean;
                         else
                             goto wrong_blend_enable_type;
 
                         // Set the source color blend factor
-                        if ( p_source_color_blend_factor->type == JSONstring )
+                        if ( p_source_color_blend_factor->type == JSON_VALUE_STRING )
                             source_color_blend_factor = (VkBlendFactor) (size_t) dict_get(blend_factors, p_source_color_blend_factor->string);
                         else
                             goto wrong_source_color_blend_factor_type;
 
                         // Set the destination color blend factor
-                        if ( p_destination_color_blend_factor->type == JSONstring )
+                        if ( p_destination_color_blend_factor->type == JSON_VALUE_STRING )
                             destination_color_blend_factor = (VkBlendFactor) (size_t) dict_get(blend_factors, p_destination_color_blend_factor->string);
                         else
                             goto wrong_destination_color_blend_factor;
 
                         // Set the color blend operation
-                        if ( p_color_blend_operation->type == JSONstring )
+                        if ( p_color_blend_operation->type == JSON_VALUE_STRING )
                             color_blend_op = (VkBlendOp) (size_t) dict_get(blend_operations, p_color_blend_operation->string);
                         else
                             goto wrong_color_blend_operation_type;
 
                         // Set the source alpha blend factor
-                        if ( p_source_alpha_blend_factor->type == JSONstring )
+                        if ( p_source_alpha_blend_factor->type == JSON_VALUE_STRING )
                             source_alpha_blend_factor = (VkBlendFactor) (size_t) dict_get(blend_factors, p_source_alpha_blend_factor->string);
                         else
                             goto wrong_source_alpha_blend_factor;
 
                         // Set the destination alpha blend factor
-                        if ( p_destination_alpha_blend_factor->type == JSONstring )
+                        if ( p_destination_alpha_blend_factor->type == JSON_VALUE_STRING )
                             destination_alpha_blend_factor = (VkBlendFactor) (size_t) dict_get(blend_factors, p_destination_alpha_blend_factor->string);
                         else
                             goto wrong_destination_alpha_blend_factor;
 
                         // Set the alpha blend operation
-                        if ( p_alpha_blend_operation->type == JSONstring )
+                        if ( p_alpha_blend_operation->type == JSON_VALUE_STRING )
                             alpha_blend_op = (VkBlendOp) (size_t) dict_get(blend_operations, p_alpha_blend_operation->string);
                         else
                             goto wrong_alpha_blend_op;
@@ -2473,7 +2473,7 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
 
                     // Get the push constant struct
                     token                = (JSONToken_t *) dict_get(push_constant_dict, "struct");
-                    push_constant_struct = JSON_VALUE(token, JSONarray);
+                    push_constant_struct = JSON_VALUE(token, JSON_VALUE_ARRAY);
                 }
 
                 while (push_constant_struct[++push_constant_property_count]);
@@ -2500,10 +2500,10 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
                         JSONToken_t *token = 0;
 
                         token = (JSONToken_t *) dict_get(property_dict, "name");
-                        property_name = JSON_VALUE(token, JSONstring);
+                        property_name = JSON_VALUE(token, JSON_VALUE_STRING);
 
                         token = (JSONToken_t *) dict_get(property_dict, "type");
-                        char* property_type = JSON_VALUE(token, JSONstring);
+                        char* property_type = JSON_VALUE(token, JSON_VALUE_STRING);
 
                         // TODO: Check property_type?
                         property_size = (size_t) dict_get(format_sizes, property_type);
@@ -2982,11 +2982,11 @@ int load_graphics_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_
     }
 }
 
-int load_compute_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
+int load_compute_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value )
 {
 
     // Argument notes
-    // p_value will always be valid. p_value->type will always be JSONobject
+    // p_value will always be valid. p_value->type will always be JSON_VALUE_OBJECT
 
     // Argument check
     #ifndef NDEBUG
@@ -2997,7 +2997,7 @@ int load_compute_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_v
     GXInstance_t  *p_instance            = g_get_active_instance();
     GXShader_t    *p_shader              = 0,
                    *p_cache_shader        = 0;
-    JSONValue_t   *p_name                = 0,
+    json_value   *p_name                = 0,
                   *p_compute_shader_path = 0,
                   *p_layout              = 0;
 
@@ -3053,7 +3053,7 @@ int load_compute_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_v
         p_shader->compute.z_groups = 1;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -3076,7 +3076,7 @@ int load_compute_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_v
         {
 
             // Parse the compute shader path as a string
-            if ( p_compute_shader_path->type == JSONstring )
+            if ( p_compute_shader_path->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -3271,11 +3271,11 @@ int load_compute_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_v
     }
 }
 
-int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value )
+int load_ray_shader_as_json_value ( GXShader_t **pp_shader, json_value *p_value )
 {
 
     // Argument notes
-    // p_value will always be valid. p_value->type will always be JSONobject
+    // p_value will always be valid. p_value->type will always be JSON_VALUE_OBJECT
 
     // Argument check
     #ifndef NDEBUG
@@ -3286,7 +3286,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
     // Initialized data
     GXInstance_t  *p_instance                     = g_get_active_instance();
     GXShader_t    *p_shader                       = 0;
-    JSONValue_t   *p_name                         = 0,
+    json_value   *p_name                         = 0,
                   *p_ray_generation_shader_path   = 0,
                   *p_ray_any_hit_shader_path      = 0,
                   *p_ray_closest_hit_shader_path  = 0,
@@ -3342,7 +3342,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         p_shader->type = g10_pipeline_ray;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -3365,7 +3365,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         {
 
             // Parse the ray generation shader path as a string
-            if ( p_ray_generation_shader_path->type == JSONstring )
+            if ( p_ray_generation_shader_path->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -3395,7 +3395,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         {
 
             // Parse the ray any hit shader path as a string
-            if ( p_ray_any_hit_shader_path->type == JSONstring )
+            if ( p_ray_any_hit_shader_path->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -3425,7 +3425,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         {
 
             // Parse the ray closest hit shader path as a string
-            if ( p_ray_closest_hit_shader_path->type == JSONstring )
+            if ( p_ray_closest_hit_shader_path->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -3455,7 +3455,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         {
 
             // Parse the ray miss shader path as a string
-            if ( p_ray_miss_shader_path->type == JSONstring )
+            if ( p_ray_miss_shader_path->type == JSON_VALUE_STRING )
             {
                 // Initialized data
                 size_t ray_miss_shader_data_len = g_load_file(p_ray_miss_shader_path->string, 0, true);
@@ -3484,7 +3484,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         {
 
             // Parse the ray intersection shader path as a string
-            if ( p_ray_intersection_shader_path->type == JSONstring )
+            if ( p_ray_intersection_shader_path->type == JSON_VALUE_STRING )
             {
                 // Initialized data
                 size_t ray_intersection_shader_data_len = g_load_file(p_ray_intersection_shader_path->string, 0, true);
@@ -3513,7 +3513,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
         {
 
             // Parse the ray callable shader path as a string
-            if ( p_ray_callable_shader_path->type == JSONstring )
+            if ( p_ray_callable_shader_path->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -3901,7 +3901,7 @@ int load_ray_shader_as_json_value ( GXShader_t **pp_shader, JSONValue_t *p_value
     }
 }
 
-int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
+int load_layout_as_json_value ( GXLayout_t **pp_layout, json_value *p_value )
 {
 
     // Argument check
@@ -3913,11 +3913,11 @@ int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
     // Initialized data
     GXInstance_t *p_instance      = g_get_active_instance();
     GXLayout_t   *p_layout        = 0;
-    JSONValue_t  *p_sets          = 0,
+    json_value  *p_sets          = 0,
                  *p_push_constant = 0;
 
     // Parse the JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -3939,7 +3939,7 @@ int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
     {
 
         // Initialized data
-        JSONValue_t           **pp_sets       = 0;
+        json_value           **pp_sets       = 0;
         size_t                  set_count     = 0;
         VkDescriptorSetLayout  *p_set_layouts = 0;
 
@@ -3947,7 +3947,7 @@ int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
         if ( create_layout(&p_layout) == 0 ) goto failed_to_allocate_layout;
 
         // Construct sets
-        if ( p_sets->type == JSONarray )
+        if ( p_sets->type == JSON_VALUE_ARRAY )
         {
 
             // Get the contents of the array
@@ -3957,7 +3957,7 @@ int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
                 array_get(p_sets->list, 0, &set_count);
 
                 // Allocate memory for the set JSON values
-                pp_sets = calloc(set_count, sizeof(JSONValue_t *));
+                pp_sets = calloc(set_count, sizeof(json_value *));
 
                 // Error check
                 if ( pp_sets == (void *) 0 ) goto no_mem;
@@ -3980,7 +3980,7 @@ int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
             {
 
                 // Initialized data
-                JSONValue_t                     *i_set = pp_sets[i];
+                json_value                     *i_set = pp_sets[i];
                 GXSet_t                         *p_set = 0;
 
                 // Construct a set from a JSON value
@@ -4077,7 +4077,7 @@ int load_layout_as_json_value ( GXLayout_t **pp_layout, JSONValue_t *p_value )
     }
 }
 
-int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
+int load_set_as_json_value ( GXSet_t **pp_set, json_value *p_value )
 {
 
     // Argument check
@@ -4089,14 +4089,14 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
     // Initialized data
     GXInstance_t                     *p_instance                          = g_get_active_instance();
     GXSet_t                          *p_set                               = 0;
-    JSONValue_t                      *p_name                              = 0,
+    json_value                      *p_name                              = 0,
                                      *p_descriptors                       = 0;
     VkDescriptorSetLayoutCreateInfo   i_descriptor_set_layout_create_info = { 0 };
     size_t                            descriptor_count                    = 0;
-    JSONValue_t                     **pp_descriptors                      = 0;
+    json_value                     **pp_descriptors                      = 0;
 
     // Parse the JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -4127,7 +4127,7 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
         if ( create_set(&p_set) == 0 ) goto failed_to_create_set;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -4147,7 +4147,7 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
             goto wrong_name_type;
 
         // Parse each descriptor
-        if ( p_descriptors->type == JSONarray )
+        if ( p_descriptors->type == JSON_VALUE_ARRAY )
         {
 
             // Get the contents of the array
@@ -4157,7 +4157,7 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
                 array_get(p_descriptors->list, 0, &descriptor_count);
 
                 // Allocate memory for the set JSON values
-                pp_descriptors = calloc(descriptor_count, sizeof(JSONValue_t *));
+                pp_descriptors = calloc(descriptor_count, sizeof(json_value *));
 
                 // Error check
                 if ( pp_descriptors == (void *) 0 ) goto no_mem;
@@ -4182,13 +4182,13 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
             {
 
                 // Initialized data
-                JSONValue_t    *p_descriptor_value = pp_descriptors[i],
+                json_value    *p_descriptor_value = pp_descriptors[i],
                                *p_descriptor_name  = 0,
                                *p_descriptor_type  = 0;
                 GXDescriptor_t *p_descriptor       = 0;
 
                 // Parse the JSON value
-                if ( p_descriptor_value->type == JSONobject )
+                if ( p_descriptor_value->type == JSON_VALUE_OBJECT )
                 {
 
                     // Initialized data
@@ -4213,7 +4213,7 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
                     if ( create_descriptor(&p_descriptor) == 0 ) goto failed_to_allocate_descriptor;
 
                     // Copy the name
-                    if ( p_descriptor_name->type == JSONstring )
+                    if ( p_descriptor_name->type == JSON_VALUE_STRING )
                     {
 
                         // Initialized data
@@ -4230,7 +4230,7 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
                     }
 
                     // Set the type
-                    if ( p_descriptor_type->type == JSONstring )
+                    if ( p_descriptor_type->type == JSON_VALUE_STRING )
                         p_descriptor->type = (VkDescriptorType) (size_t) dict_get(descriptor_types, p_descriptor_type->string);
 
                     // Set the index
@@ -4367,7 +4367,7 @@ int load_set_as_json_value ( GXSet_t **pp_set, JSONValue_t *p_value )
 }
 
 /*
-int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, JSONValue_t *p_value )
+int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, json_value *p_value )
 {
 
     // Argument check
@@ -4380,11 +4380,11 @@ int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, JSONValue_t 
 
     // Initialized data
     GXDescriptor_t *p_descriptor = 0;
-    JSONValue_t    *p_name       = 0,
+    json_value    *p_name       = 0,
                    *p_type       = 0;
 
     // Parse the JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         p_name = dict_get(p_value->object, "name");
@@ -4409,7 +4409,7 @@ int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, JSONValue_t 
             goto failed_to_create_descriptor;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -4429,7 +4429,7 @@ int load_descriptor_as_json_value ( GXDescriptor_t **pp_descriptor, JSONValue_t 
             goto wrong_name_type;
 
         // Set the type
-        if ( p_type->type == JSONstring )
+        if ( p_type->type == JSON_VALUE_STRING )
             p_descriptor->type = (VkDescriptorType) dict_get(descriptor_types, p_type->string);
 
         p_descriptor->

@@ -138,7 +138,7 @@ int load_texture_as_json_text ( GXTexture_t **pp_texture, char *text )
     #endif
 
     // Initialized data
-    JSONValue_t *p_value = 0;
+    json_value *p_value = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
@@ -192,7 +192,7 @@ int load_texture_as_json_text ( GXTexture_t **pp_texture, char *text )
     }
 }
 
-int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value )
+int load_texture_as_json_value ( GXTexture_t **pp_texture, json_value *p_value )
 {
 
     // Argument check
@@ -223,20 +223,20 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
     VkBuffer              staging_buffer           = 0;
     VkImageCreateInfo     image_create_info        = { 0 };
     void                 *data                     = 0;
-    JSONValue_t          *p_image_json_object      = 0,
+    json_value          *p_image_json_object      = 0,
                          *p_image_view_json_object = 0,
                          *p_sampler_json_object    = 0,
                          *p_path                   = 0;
 
-    // TODO: Refactor to use JSONValue_t *
+    // TODO: Refactor to use json_value *
     // Parse the JSON
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
-        p_image_json_object      = ((JSONValue_t *)dict_get(json_data, "image"))->object;
-        p_image_view_json_object = ((JSONValue_t *)dict_get(json_data, "image view"))->object;
-        p_sampler_json_object    = ((JSONValue_t *)dict_get(json_data, "sampler"))->object;
-        p_path                   = ((JSONValue_t *)dict_get(json_data, "path"))->string;
+        p_image_json_object      = ((json_value *)dict_get(json_data, "image"))->object;
+        p_image_view_json_object = ((json_value *)dict_get(json_data, "image view"))->object;
+        p_sampler_json_object    = ((json_value *)dict_get(json_data, "sampler"))->object;
+        p_path                   = ((json_value *)dict_get(json_data, "path"))->string;
 
         // Check properties
         if ( ! (
@@ -259,7 +259,7 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
         if ( p_path )
         {
 
-            if ( p_path->type == JSONstring )
+            if ( p_path->type == JSON_VALUE_STRING )
             {
                 // Get the file extension
                 file_extension = 1 + strrchr(p_path->string, '.');
@@ -297,14 +297,14 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
         {
 
             // Parse the image as a JSON object
-            if ( p_image_json_object->type == JSONobject)
+            if ( p_image_json_object->type == JSON_VALUE_OBJECT)
             {
 
                 // External data
                 extern dict *format_types;
 
                 // Initialized data
-                JSONValue_t        *p_flags           = 0,
+                json_value        *p_flags           = 0,
                                    *p_format          = 0,
                                    *p_view_type       = 0,
                                    *p_extent          = 0,
@@ -317,21 +317,21 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
                 VkImageUsageFlags   usage_flag        = 0;
                 size_t              usage_flags       = 0,
                                     extent_count      = 0;
-                JSONValue_t       **pp_extents        = 0;
+                json_value       **pp_extents        = 0;
 
                 // Parse the JSON value
                 {
 
-                    p_flags          = ((JSONValue_t *) dict_get(p_image_json_object->object, "flags"));
-                    p_format         = ((JSONValue_t *) dict_get(p_image_json_object->object, "format"));
-                    p_view_type      = ((JSONValue_t *) dict_get(p_image_json_object->object, "view type"));
-                    p_extent         = ((JSONValue_t *) dict_get(p_image_json_object->object, "extent"));
-                    p_mip_levels     = ((JSONValue_t *) dict_get(p_image_json_object->object, "mip levels"));
-                    p_array_layers   = ((JSONValue_t *) dict_get(p_image_json_object->object, "array layers"));
-                    p_samples        = ((JSONValue_t *) dict_get(p_image_json_object->object, "samples"));
-                    p_tiling         = ((JSONValue_t *) dict_get(p_image_json_object->object, "tiling"));
-                    p_usage          = ((JSONValue_t *) dict_get(p_image_json_object->object, "usage"));
-                    p_atomic_sharing = ((JSONValue_t *) dict_get(p_image_json_object->object, "atomic sharing"));
+                    p_flags          = ((json_value *) dict_get(p_image_json_object->object, "flags"));
+                    p_format         = ((json_value *) dict_get(p_image_json_object->object, "format"));
+                    p_view_type      = ((json_value *) dict_get(p_image_json_object->object, "view type"));
+                    p_extent         = ((json_value *) dict_get(p_image_json_object->object, "extent"));
+                    p_mip_levels     = ((json_value *) dict_get(p_image_json_object->object, "mip levels"));
+                    p_array_layers   = ((json_value *) dict_get(p_image_json_object->object, "array layers"));
+                    p_samples        = ((json_value *) dict_get(p_image_json_object->object, "samples"));
+                    p_tiling         = ((json_value *) dict_get(p_image_json_object->object, "tiling"));
+                    p_usage          = ((json_value *) dict_get(p_image_json_object->object, "usage"));
+                    p_atomic_sharing = ((json_value *) dict_get(p_image_json_object->object, "atomic sharing"));
 
                     // Check properties
                     if (
@@ -347,19 +347,19 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
                 // Construct the image
 
                 // Construct the usage flags
-                if ( p_usage->type == JSONarray )
+                if ( p_usage->type == JSON_VALUE_ARRAY )
                 {
 
                     // Initialzied data
                     size_t       *usage_string_count = 0;
-                    JSONValue_t **pp_usage_strings   = 0;
+                    json_value **pp_usage_strings   = 0;
 
                     // Get the array contents
                     {
 
                         array_get(p_usage->list, 0, &usage_string_count);
 
-                        pp_usage_strings = calloc(usage_string_count+1, sizeof(JSONValue_t *));
+                        pp_usage_strings = calloc(usage_string_count+1, sizeof(json_value *));
 
                         if ( pp_usage_strings == (void *) 0 ) goto no_mem;
 
@@ -376,7 +376,7 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
 
                     array_get(p_extent->list, 0, &extent_count);
 
-                    pp_extents = calloc(extent_count+1, sizeof(JSONValue_t *));
+                    pp_extents = calloc(extent_count+1, sizeof(json_value *));
 
                     if ( pp_extents == (void *) 0 ) goto no_mem;
 
@@ -445,16 +445,16 @@ int load_texture_as_json_value ( GXTexture_t **pp_texture, JSONValue_t *p_value 
                 JSONToken_t *t = 0;
 
                 t             = (JSONToken_t *) dict_get(image_json, "view type");
-                view_type     = JSON_VALUE(t, JSONstring);
+                view_type     = JSON_VALUE(t, JSON_VALUE_STRING);
 
                 t             = (JSONToken_t *) dict_get(image_json, "format");
-                format        = JSON_VALUE(t, JSONstring);
+                format        = JSON_VALUE(t, JSON_VALUE_STRING);
 
                 t             = (JSONToken_t *) dict_get(image_json, "swizzle");
-                swizzle       = JSON_VALUE(t, JSONarray);
+                swizzle       = JSON_VALUE(t, JSON_VALUE_ARRAY);
 
                 t             = (JSONToken_t *) dict_get(image_json, "image aspects");
-                image_aspects = JSON_VALUE(t, JSONarray);
+                image_aspects = JSON_VALUE(t, JSON_VALUE_ARRAY);
 
                 t             = (JSONToken_t *) dict_get(image_json, "generate mips");
                 generate_mips = JSON_VALUE(t, JSONprimative);

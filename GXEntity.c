@@ -147,7 +147,7 @@ int load_entity_as_json_text ( GXEntity_t** pp_entity, char* text )
     #endif
 
     // Initialized data
-    JSONValue_t *p_value = 0;
+    json_value *p_value = 0;
 
     // Parse the JSON
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
@@ -205,7 +205,7 @@ int load_entity_as_json_text ( GXEntity_t** pp_entity, char* text )
     }
 }
 
-int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
+int load_entity_as_json_value ( GXEntity_t **pp_entity, json_value *p_value )
 {
 
     // Argument Check
@@ -216,7 +216,7 @@ int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
 
     // Initialized data
     GXEntity_t  *p_entity            = 0;
-    JSONValue_t *p_name_value        = 0,
+    json_value *p_name_value        = 0,
                 *p_parts_value       = 0,
                 *p_materials_value   = 0,
                 *p_shader_name_value = 0,
@@ -226,7 +226,7 @@ int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
                 *p_ai_value          = 0;
 
     // Parse the JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -262,7 +262,7 @@ int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
         if ( create_entity(&p_entity) == 0 ) goto failed_to_allocate_entity;
 
         // Set the name
-        if ( p_name_value->type == JSONstring )
+        if ( p_name_value->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -286,12 +286,12 @@ int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
         {
 
             // Parse each part
-            if ( p_parts_value->type == JSONarray )
+            if ( p_parts_value->type == JSON_VALUE_ARRAY )
             {
 
                 // Initialized data
                 size_t        part_count = 0;
-                JSONValue_t **parts      = 0;
+                json_value **parts      = 0;
 
                 // Construct a dictionary
                 dict_construct(&p_entity->parts, 16);
@@ -303,7 +303,7 @@ int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
                     (void)array_get(p_parts_value->list, 0, &part_count);
 
                     // Allocate memory for a list of parts
-                    parts = calloc(part_count+1, sizeof(JSONValue_t *));
+                    parts = calloc(part_count+1, sizeof(json_value *));
 
                     // Error check
                     if ( parts == (void *) 0 ) goto no_mem;
@@ -342,7 +342,7 @@ int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value )
         {
 
             // Copy the name of the shader
-            if ( p_shader_name_value->type == JSONstring )
+            if ( p_shader_name_value->type == JSON_VALUE_STRING )
             {
                 
                 // Initialized data
@@ -930,7 +930,7 @@ int load_entity_from_queue ( void *vp_instance )
     // Initialized data
     GXInstance_t *p_instance = vp_instance;
     size_t        i          = 0;
-    JSONValue_t  *p_value    = 0;
+    json_value  *p_value    = 0;
     GXEntity_t   *p_entity   = 0;
     GXScene_t    *p_scene    = p_instance->context.loading_scene;
 
@@ -1168,7 +1168,7 @@ int move_entity ( GXEntity_t *p_entity )
     return 1;
 }
 
-int entity_info ( GXEntity_t *p_entity )
+int entity_info ( GXEntity_t *p_entity, size_t idx )
 {
 
     // Argument check
@@ -1189,7 +1189,7 @@ int entity_info ( GXEntity_t *p_entity )
         g_print_log(" - Parts - \n");
 
         // Print information about the part
-        dict_foreach(p_entity->parts, ( void (*)(void*) ) part_info);
+        dict_foreach(p_entity->parts, ( void (*)(const void* const, size_t) ) part_info);
     }
 
     // Print the AI

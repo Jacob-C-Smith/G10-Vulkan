@@ -127,7 +127,7 @@ DLLEXPORT int load_collider_as_json_text ( GXCollider_t **pp_collider, char *tex
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_collider_as_json_value ( GXCollider_t **pp_collider, JSONValue_t *p_value );
+DLLEXPORT int load_collider_as_json_value ( GXCollider_t **pp_collider, json_value *p_value );
 
 
 // Callbacks

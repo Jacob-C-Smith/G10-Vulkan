@@ -109,7 +109,7 @@ DLLEXPORT int load_scene_as_json_text ( GXScene_t **pp_scene, char *text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_scene_as_json_value ( GXScene_t **pp_scene, JSONValue_t *p_value );
+DLLEXPORT int load_scene_as_json_value ( GXScene_t **pp_scene, json_value *p_value );
 
 // Appenders
 /** !

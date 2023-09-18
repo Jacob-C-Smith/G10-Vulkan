@@ -1332,7 +1332,7 @@ int load_renderer_as_json_text ( GXRenderer_t **pp_renderer, char *text )
 
     // Initialized data
     GXRenderer_t *p_renderer = 0;
-    JSONValue_t  *p_value    = 0;
+    json_value  *p_value    = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
@@ -1393,7 +1393,7 @@ int load_renderer_as_json_text ( GXRenderer_t **pp_renderer, char *text )
     }
 }
 
-int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_value )
+int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, json_value *p_value )
 {
 
     // Argument check
@@ -1405,14 +1405,14 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
     // Initialized data
     GXInstance_t *p_instance        = g_get_active_instance();
     GXRenderer_t *p_renderer        = 0;
-    JSONValue_t  *p_name            = 0,
+    json_value  *p_name            = 0,
                  *p_passes          = 0,
                  *p_attachments     = 0,
                  *p_synchronization = 0,
                  *p_clear_color     = 0;
 
     // Parse the value as an object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -1437,7 +1437,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
             goto missing_properties;
     }
     // Parse the value as a path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load the renderer as a pass
@@ -1463,7 +1463,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
         p_instance->context.loading_renderer = p_renderer;
 
         // Copy the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -1483,12 +1483,12 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
             goto wrong_name_type;
 
         // Parse each attachment
-        if ( p_attachments->type == JSONarray )
+        if ( p_attachments->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
             size_t array_len = 0;
-            JSONValue_t **pp_array_contents = 0;
+            json_value **pp_array_contents = 0;
 
             // Get the array contents
             {
@@ -1497,7 +1497,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
                 array_get(p_attachments->list, 0, &array_len);
 
                 // Allocate memory for array
-                pp_array_contents = calloc(array_len, sizeof(JSONValue_t *));
+                pp_array_contents = calloc(array_len, sizeof(json_value *));
 
                 // Error check
                 if ( pp_array_contents == (void *) 0 ) goto no_mem;
@@ -1528,12 +1528,12 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
             goto wrong_attachments_type;
 
         // Parse the clear color as an array
-        if ( p_clear_color->type == JSONarray )
+        if ( p_clear_color->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
             size_t        array_len = 0;
-            JSONValue_t **pp_array_contents = 0;
+            json_value **pp_array_contents = 0;
             size_t        attachment_count = dict_values(p_renderer->attachments, 0);;
 
             // Get the array contents
@@ -1543,7 +1543,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
                 array_get(p_clear_color->list, 0, &array_len);
 
                 // Allocate memory for array
-                pp_array_contents = calloc(array_len, sizeof(JSONValue_t *));
+                pp_array_contents = calloc(array_len, sizeof(json_value *));
 
                 // Error check
                 if ( pp_array_contents == (void *) 0 ) goto no_mem;
@@ -1564,7 +1564,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
             for (size_t i = 0; i < array_len; i++)
 
                 // Set the clear color
-                clear_color[0].color.float32[i] = (float)pp_array_contents[i]->floating;
+                clear_color[0].color.float32[i] = (float)pp_array_contents[i]->number;
 
             // Set the depth stencil clear color
             clear_color[1].depthStencil.depth = 1.f;
@@ -1582,12 +1582,12 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
             goto wrong_renderer_clear_color_type;
 
         // Parse each render pass
-        if ( p_passes->type == JSONarray )
+        if ( p_passes->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
             size_t array_len = 0;
-            JSONValue_t **pp_array_contents = 0;
+            json_value **pp_array_contents = 0;
 
             // Get the array contents
             {
@@ -1596,7 +1596,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
                 array_get(p_passes->list, 0, &array_len);
 
                 // Allocate memory for array
-                pp_array_contents = calloc(array_len, sizeof(JSONValue_t *));
+                pp_array_contents = calloc(array_len, sizeof(json_value *));
 
                 // Error check
                 if ( pp_array_contents == (void *) 0 ) goto no_mem;
@@ -1691,11 +1691,11 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
     }
 
     // Construct synchronization objects
-    if ( p_synchronization->type == JSONobject )
+    if ( p_synchronization->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
-        JSONValue_t *p_synchronization_binary_semaphores = 0,
+        json_value *p_synchronization_binary_semaphores = 0,
                     *p_synchronization_fences            = 0;
 
         // Parse the JSON
@@ -1727,7 +1727,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
             {
 
                 // Initialized data
-                JSONValue_t **pp_binary_semaphore_names = 0;
+                json_value **pp_binary_semaphore_names = 0;
                 dict         *p_semaphore_dict          = 0;
 
                 // Dump the array
@@ -1737,7 +1737,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
                     array_get(p_synchronization_binary_semaphores->list, 0, &binary_semaphores_count);
 
                     // Allocate memory for semaphores
-                    pp_binary_semaphore_names = calloc(binary_semaphores_count, sizeof(JSONValue_t *));
+                    pp_binary_semaphore_names = calloc(binary_semaphores_count, sizeof(json_value *));
 
                     // Error check
                     if ( pp_binary_semaphore_names == (void *) 0 ) goto no_mem;
@@ -1792,7 +1792,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
 
                 // Initialized data
                 char        **fences_names    = 0;
-                JSONValue_t **fences_signaled = 0;
+                json_value **fences_signaled = 0;
                 dict         *p_fence_dict    = 0;
 
                 // Parse the JSON
@@ -1806,7 +1806,7 @@ int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_val
 
                     // Allocate memory for properties
                     fences_names    = calloc(fences_count, sizeof(char *));
-                    fences_signaled = calloc(fences_count, sizeof(JSONValue_t *));
+                    fences_signaled = calloc(fences_count, sizeof(json_value *));
 
                     // Error check
                     if ( fences_names    == (void *) 0 ) goto no_mem;
@@ -2134,7 +2134,7 @@ int load_render_pass_as_json_text ( GXRenderPass_t **pp_render_pass, char *text 
     // Initialized data
     GXInstance_t *p_instance = g_get_active_instance();
     GXRenderPass_t *p_render_pass = 0;
-    JSONValue_t *p_value = 0;
+    json_value *p_value = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json_as_value;
@@ -2192,7 +2192,7 @@ int load_render_pass_as_json_text ( GXRenderPass_t **pp_render_pass, char *text 
     }
 }
 
-int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_t *p_value )
+int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, json_value *p_value )
 {
 
     // Argument check
@@ -2204,7 +2204,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
     // Initialized data
     GXInstance_t    *p_instance            = g_get_active_instance();
     GXRenderPass_t  *p_render_pass         = 0;
-    JSONValue_t     *p_name                = 0,
+    json_value     *p_name                = 0,
                     *p_attachments         = 0,
                     *p_shaders             = 0,
                     *p_subpasses           = 0,
@@ -2213,7 +2213,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
     size_t           subpass_count         = 0;
 
     // Parse the render pass JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -2258,7 +2258,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
         if ( create_render_pass(&p_render_pass) == 0 ) goto failed_to_create_render_pass;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -2280,12 +2280,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
         // Populate attachments
         if ( p_attachments )
         {
-            if ( p_attachments->type == JSONarray )
+            if ( p_attachments->type == JSON_VALUE_ARRAY )
             {
 
                 // Initialized data
                 size_t array_len = 0;
-                JSONValue_t **pp_array_contents = 0;
+                json_value **pp_array_contents = 0;
 
                 // Get the array contents
                 {
@@ -2294,7 +2294,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                     array_get(p_attachments->list, 0, &array_len);
 
                     // Allocate memory for array
-                    pp_array_contents = calloc(array_len, sizeof(JSONValue_t *));
+                    pp_array_contents = calloc(array_len, sizeof(json_value *));
 
                     // Error check
                     if ( pp_array_contents == (void *) 0 ) goto no_mem;
@@ -2318,7 +2318,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                 // Iterate over each attachment JSON object text
                 for (size_t i = 0; i < array_len; i++)
                 {
-                    if ( pp_array_contents[i]->type == JSONstring )
+                    if ( pp_array_contents[i]->type == JSON_VALUE_STRING )
                     {
 
                         // Initialized data
@@ -2342,7 +2342,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
         }
 
         // Populate subpasses
-        if ( p_subpasses->type == JSONarray )
+        if ( p_subpasses->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
@@ -2355,7 +2355,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                 array_get(p_subpasses->list, 0, &array_len);
 
                 // Allocate memory for array
-                pp_subpasses_contents = calloc(array_len, sizeof(JSONValue_t *));
+                pp_subpasses_contents = calloc(array_len, sizeof(json_value *));
 
                 // Error check
                 if ( pp_subpasses_contents == (void *) 0 ) goto no_mem;
@@ -2399,12 +2399,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
         // Populate dependencies
         if ( p_dependencies )
         {
-            if ( p_dependencies->type == JSONarray )
+            if ( p_dependencies->type == JSON_VALUE_ARRAY )
             {
 
                 // Initialized data
                 size_t        array_len         = 0;
-                JSONValue_t **pp_array_contents = 0;
+                json_value **pp_array_contents = 0;
 
                 // Get the array contents
                 {
@@ -2413,7 +2413,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                     array_get(p_dependencies->list, 0, &array_len);
 
                     // Allocate memory for array
-                    pp_array_contents = calloc(array_len, sizeof(JSONValue_t *));
+                    pp_array_contents = calloc(array_len, sizeof(json_value *));
 
                     // Error check
                     if ( pp_array_contents == (void *) 0 ) goto no_mem;
@@ -2434,7 +2434,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                 {
 
                     // Initialized data
-                    JSONValue_t *p_dependency = pp_array_contents[i],
+                    json_value *p_dependency = pp_array_contents[i],
                                 *p_dependency_flags = 0,
                                 *p_dependency_source_subpass = 0,
                                 *p_dependency_destination_subpass = 0,
@@ -2485,12 +2485,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                         {
 
                             // Parse the flags as an array
-                            if ( p_dependency_source_subpass->type == JSONarray )
+                            if ( p_dependency_source_subpass->type == JSON_VALUE_ARRAY )
                             {
 
                                 // Initialized data
                                 size_t flags_count = 0;
-                                JSONValue_t **pp_flags = 0;
+                                json_value **pp_flags = 0;
 
                                 // Get the array contents
                                 {
@@ -2499,7 +2499,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                     array_get(p_dependency_source_subpass->list, 0, &flags_count);
 
                                     // Allocate memory for the array
-                                    pp_flags = calloc(flags_count, sizeof(JSONValue_t *));
+                                    pp_flags = calloc(flags_count, sizeof(json_value *));
 
                                     // Error handling
                                     if ( pp_flags == (void *) 0 ) goto no_mem;
@@ -2513,10 +2513,10 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 {
 
                                     // Initialized data
-                                    JSONValue_t *i_flag = pp_flags[i];
+                                    json_value *i_flag = pp_flags[i];
 
                                     // Set the flag
-                                    if ( i_flag->type == JSONstring )
+                                    if ( i_flag->type == JSON_VALUE_STRING )
                                     {
 
                                     }
@@ -2527,7 +2527,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
 
                             }
                             // Parse the flags as a string
-                            else if ( p_dependency_source_subpass->type == JSONstring )
+                            else if ( p_dependency_source_subpass->type == JSON_VALUE_STRING )
                             {
                                 // TODO
                             }
@@ -2540,12 +2540,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                         {
 
                             // Parse the flags as an array
-                            if ( p_dependency_destination_subpass->type == JSONarray )
+                            if ( p_dependency_destination_subpass->type == JSON_VALUE_ARRAY )
                             {
 
                                 // Initialized data
                                 size_t flags_count = 0;
-                                JSONValue_t **pp_flags = 0;
+                                json_value **pp_flags = 0;
 
                                 // Get the array contents
                                 {
@@ -2554,7 +2554,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                     array_get(p_dependency_destination_subpass->list, 0, &flags_count);
 
                                     // Allocate memory for the array
-                                    pp_flags = calloc(flags_count, sizeof(JSONValue_t *));
+                                    pp_flags = calloc(flags_count, sizeof(json_value *));
 
                                     // Error handling
                                     if ( pp_flags == (void *) 0 ) goto no_mem;
@@ -2568,10 +2568,10 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 {
 
                                     // Initialized data
-                                    JSONValue_t *i_flag = pp_flags[i];
+                                    json_value *i_flag = pp_flags[i];
 
                                     // Set the flag
-                                    if ( i_flag->type == JSONstring )
+                                    if ( i_flag->type == JSON_VALUE_STRING )
                                     {
 
                                     }
@@ -2584,7 +2584,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 free(pp_flags);
                             }
                             // Parse the flags as a string
-                            else if ( p_dependency_destination_subpass->type == JSONstring )
+                            else if ( p_dependency_destination_subpass->type == JSON_VALUE_STRING )
                             {
 
                             }
@@ -2597,12 +2597,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                         {
 
                             // Parse the flags as an array
-                            if ( p_dependency_source_stage->type == JSONarray )
+                            if ( p_dependency_source_stage->type == JSON_VALUE_ARRAY )
                             {
 
                                 // Initialized data
                                 size_t flags_count = 0;
-                                JSONValue_t **pp_flags = 0;
+                                json_value **pp_flags = 0;
 
                                 // Get the array contents
                                 {
@@ -2611,7 +2611,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                     array_get(p_dependency_source_stage->list, 0, &flags_count);
 
                                     // Allocate memory for the array
-                                    pp_flags = calloc(flags_count, sizeof(JSONValue_t *));
+                                    pp_flags = calloc(flags_count, sizeof(json_value *));
 
                                     // Error handling
                                     if ( pp_flags == (void *) 0 ) goto no_mem;
@@ -2625,10 +2625,10 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 {
 
                                     // Initialized data
-                                    JSONValue_t *i_flag = pp_flags[i];
+                                    json_value *i_flag = pp_flags[i];
 
                                     // Set the flag
-                                    if ( i_flag->type == JSONstring )
+                                    if ( i_flag->type == JSON_VALUE_STRING )
                                         source_stage_mask |= (VkPipelineStageFlags) (size_t) dict_get(pipeline_stage_flag_bits, i_flag->string);
                                     // Default
                                     else
@@ -2636,7 +2636,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 }
                             }
                             // Parse the flags as a string
-                            else if ( p_dependency_source_stage->type == JSONstring )
+                            else if ( p_dependency_source_stage->type == JSON_VALUE_STRING )
                                 source_stage_mask = (VkPipelineStageFlags) (size_t) dict_get(pipeline_stage_flag_bits, p_dependency_source_stage->string);
                             // Default
                             else
@@ -2647,12 +2647,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                         {
 
                             // Parse the flags as an array
-                            if ( p_dependency_destination_stage->type == JSONarray )
+                            if ( p_dependency_destination_stage->type == JSON_VALUE_ARRAY )
                             {
 
                                 // Initialized data
                                 size_t flags_count = 0;
-                                JSONValue_t **pp_flags = 0;
+                                json_value **pp_flags = 0;
 
                                 // Get the array contents
                                 {
@@ -2661,7 +2661,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                     array_get(p_dependency_destination_stage->list, 0, &flags_count);
 
                                     // Allocate memory for the array
-                                    pp_flags = calloc(flags_count+1, sizeof(JSONValue_t *));
+                                    pp_flags = calloc(flags_count+1, sizeof(json_value *));
 
                                     // Error handling
                                     if ( pp_flags == (void *) 0 ) goto no_mem;
@@ -2675,10 +2675,10 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 {
 
                                     // Initialized data
-                                    JSONValue_t *i_flag = pp_flags[i];
+                                    json_value *i_flag = pp_flags[i];
 
                                     // Set the flag
-                                    if ( i_flag->type == JSONstring )
+                                    if ( i_flag->type == JSON_VALUE_STRING )
                                         destination_stage_mask |= (VkPipelineStageFlags) (size_t) dict_get(pipeline_stage_flag_bits, i_flag->string);
                                     // Default
                                     else
@@ -2689,7 +2689,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 free(pp_flags);
                             }
                             // Parse the flags as a string
-                            else if ( p_dependency_destination_stage->type == JSONstring )
+                            else if ( p_dependency_destination_stage->type == JSON_VALUE_STRING )
                                 destination_stage_mask = (VkPipelineStageFlags) (size_t) dict_get(pipeline_stage_flag_bits, p_dependency_destination_stage->string);
                             // Default
                             else
@@ -2700,12 +2700,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                         {
 
                             // Parse the flags as an array
-                            if ( p_dependency_source_access->type == JSONarray )
+                            if ( p_dependency_source_access->type == JSON_VALUE_ARRAY )
                             {
 
                                 // Initialized data
                                 size_t flags_count = 0;
-                                JSONValue_t **pp_flags = 0;
+                                json_value **pp_flags = 0;
 
                                 // Get the array contents
                                 {
@@ -2714,7 +2714,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                     array_get(p_dependency_source_access->list, 0, &flags_count);
 
                                     // Allocate memory for the array
-                                    pp_flags = calloc(flags_count, sizeof(JSONValue_t *));
+                                    pp_flags = calloc(flags_count, sizeof(json_value *));
 
                                     // Error handling
                                     if ( pp_flags == (void *) 0 ) goto no_mem;
@@ -2728,10 +2728,10 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 {
 
                                     // Initialized data
-                                    JSONValue_t *i_flag = pp_flags[i];
+                                    json_value *i_flag = pp_flags[i];
 
                                     // Set the flag
-                                    if ( i_flag->type == JSONstring )
+                                    if ( i_flag->type == JSON_VALUE_STRING )
                                         source_access_mask |= (VkAccessFlags) (size_t) dict_get(access_flag_bits, i_flag->string);
                                     // Default
                                     else
@@ -2742,7 +2742,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 free(pp_flags);
                             }
                             // Parse the flags as a string
-                            else if ( p_dependency_source_access->type == JSONstring )
+                            else if ( p_dependency_source_access->type == JSON_VALUE_STRING )
                                 source_access_mask = (VkAccessFlags) (size_t) dict_get(access_flag_bits, p_dependency_source_access->string);
                             // Default
                             else
@@ -2753,12 +2753,12 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                         {
 
                             // Parse the flags as an array
-                            if ( p_dependency_destination_access->type == JSONarray )
+                            if ( p_dependency_destination_access->type == JSON_VALUE_ARRAY )
                             {
 
                                 // Initialized data
                                 size_t flags_count = 0;
-                                JSONValue_t **pp_flags = 0;
+                                json_value **pp_flags = 0;
 
                                 // Get the array contents
                                 {
@@ -2767,7 +2767,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                     array_get(p_dependency_destination_access->list, 0, &flags_count);
 
                                     // Allocate memory for the array
-                                    pp_flags = calloc(flags_count, sizeof(JSONValue_t *));
+                                    pp_flags = calloc(flags_count, sizeof(json_value *));
 
                                     // Error handling
                                     if ( pp_flags == (void *) 0 ) goto no_mem;
@@ -2781,10 +2781,10 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 {
 
                                     // Initialized data
-                                    JSONValue_t *i_flag = pp_flags[i];
+                                    json_value *i_flag = pp_flags[i];
 
                                     // Set the flag
-                                    if ( i_flag->type == JSONstring )
+                                    if ( i_flag->type == JSON_VALUE_STRING )
                                         destination_access_mask |= (VkAccessFlags) (size_t)  dict_get(access_flag_bits, i_flag->string);
                                     // Default
                                     else
@@ -2795,7 +2795,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
                                 //free(pp_flags);
                             }
                             // Parse the flags as a string
-                            else if ( p_dependency_destination_access->type == JSONstring )
+                            else if ( p_dependency_destination_access->type == JSON_VALUE_STRING )
                                 destination_access_mask = (VkAccessFlags) (size_t) dict_get(access_flag_bits, p_dependency_destination_access->string);
                             // Default
                             else
@@ -2870,13 +2870,13 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
         // Initialized data
         GXSubpass_t *p_subpass        = 0;
         GXShader_t  *p_shader         = 0;
-        JSONValue_t *p_subpass_value  = pp_subpasses_contents[i],
+        json_value *p_subpass_value  = pp_subpasses_contents[i],
                     *p_name           = 0,
                     *p_shaders_value  = 0;
         queue       *p_draw_queue     = 0;
 
         // Get the required information to load a subpasses shader
-        if ( p_subpass_value->type == JSONobject )
+        if ( p_subpass_value->type == JSON_VALUE_OBJECT )
         {
 
             // Initialized data
@@ -2899,17 +2899,17 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
 
             // Initialized data
             size_t        shader_count     = 0;
-            JSONValue_t **pp_shader_values = 0;
+            json_value **pp_shader_values = 0;
 
             // Get the contents of the array
-            if ( p_shaders_value->type == JSONarray )
+            if ( p_shaders_value->type == JSON_VALUE_ARRAY )
             {
 
                 // Get the quantity of shaders
                 array_get(p_shaders_value->list, 0, &shader_count);
 
                 // Allocate for the array contents
-                pp_shader_values = calloc(shader_count, sizeof(JSONValue_t *));
+                pp_shader_values = calloc(shader_count, sizeof(json_value *));
 
                 // Error check
                 if ( pp_shader_values == (void *) 0 ) goto no_mem;
@@ -2935,7 +2935,7 @@ int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_
             {
 
                 // Initialized data
-                JSONValue_t *p_shader_value = pp_shader_values[i];
+                json_value *p_shader_value = pp_shader_values[i];
 
                 // Load the shader
                 if ( load_shader_as_json_value(&p_shader, p_shader_value) == 0 ) goto failed_to_load_shader_as_json_value;
@@ -3260,7 +3260,7 @@ int load_subpass_as_json_text ( GXSubpass_t **pp_subpass, char *text )
     // Initialized data
     GXInstance_t *p_instance = g_get_active_instance();
     GXSubpass_t  *p_render_pass = 0;
-    JSONValue_t  *p_value = 0;
+    json_value  *p_value = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json_as_value;
@@ -3321,7 +3321,7 @@ int load_subpass_as_json_text ( GXSubpass_t **pp_subpass, char *text )
     }
 }
 
-int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value )
+int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, json_value *p_value )
 {
 
     // Argument check
@@ -3333,7 +3333,7 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
     // Initialized data
     GXInstance_t *p_instance              = g_get_active_instance();
     GXSubpass_t  *p_subpass               = 0;
-    JSONValue_t  *p_name                  = 0,
+    json_value  *p_name                  = 0,
                  *p_shaders               = 0,
                  *p_shader_name           = 0,
                  *p_input_attachments     = 0,
@@ -3342,7 +3342,7 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
                  *p_depth_attachment      = 0;
 
     // Parse the JSON value into constructor parameters
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -3374,7 +3374,7 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
                                 *color_attachment_references     = 0,
                                 *preserved_attachment_references = 0,
                                 *depth_attachment_reference      = 0;
-        JSONValue_t            **pp_input_attachments            = 0,
+        json_value            **pp_input_attachments            = 0,
                                **pp_color_attachments            = 0,
                                **pp_preserved_attachments        = 0;
 
@@ -3386,14 +3386,14 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
             {
 
                 // Parse the input attachments as an array
-                if ( p_input_attachments->type == JSONarray )
+                if ( p_input_attachments->type == JSON_VALUE_ARRAY )
                 {
 
                     // Get the quantity of input attachments
                     array_get(p_input_attachments->list, 0, &input_attachment_count);
 
                     // Allocate memory for input attachment names
-                    pp_input_attachments = calloc(input_attachment_count, sizeof(JSONValue_t *));
+                    pp_input_attachments = calloc(input_attachment_count, sizeof(json_value *));
 
                     // Error check
                     if ( pp_input_attachments == (void *) 0 ) goto no_mem;
@@ -3411,14 +3411,14 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
             {
 
                 // Parse the color attachments as an array
-                if ( p_color_attachments->type == JSONarray )
+                if ( p_color_attachments->type == JSON_VALUE_ARRAY )
                 {
 
                     // Get the size of the array
                     array_get(p_color_attachments->list, 0, &color_attachment_count);
 
                     // Allocate memory for array
-                    pp_color_attachments = calloc(color_attachment_count, sizeof(JSONValue_t *));
+                    pp_color_attachments = calloc(color_attachment_count, sizeof(json_value *));
 
                     // Error check
                     if ( pp_color_attachments == (void *) 0 ) goto no_mem;
@@ -3436,10 +3436,10 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
             {
 
                 // Parse the preserved attachments as an array
-                if (p_preserved_attachments->type == JSONarray)
+                if (p_preserved_attachments->type == JSON_VALUE_ARRAY)
                 {
                     array_get(p_preserved_attachments->list, 0, &preserved_attachment_count);
-                    pp_preserved_attachments = calloc(preserved_attachment_count, sizeof(JSONValue_t *));
+                    pp_preserved_attachments = calloc(preserved_attachment_count, sizeof(json_value *));
 
                     if ( pp_preserved_attachments == (void *) 0 ) goto no_mem;
 
@@ -3452,7 +3452,7 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
 
             if ( p_depth_attachment )
             {
-                if (p_depth_attachment->type == JSONstring)
+                if (p_depth_attachment->type == JSON_VALUE_STRING)
                     ;
                 else
                     goto wrong_depth_attachments_type;
@@ -3466,7 +3466,7 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
             if ( create_subpass(&p_subpass) == 0 ) goto failed_to_allocate_subpass;
 
             // Copy the name of the subpass
-            if ( p_name->type == JSONstring )
+            if ( p_name->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -3499,9 +3499,9 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
                 {
 
                     // Initialized data
-                    JSONValue_t *p_input_attachment = pp_color_attachments[i];
+                    json_value *p_input_attachment = pp_color_attachments[i];
 
-                    if (p_input_attachment->type == JSONstring)
+                    if (p_input_attachment->type == JSON_VALUE_STRING)
                     {
                         GXAttachment_t *p_attachment = dict_get(p_instance->context.loading_renderer->attachments, p_input_attachment->string);
 
@@ -3531,9 +3531,9 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
                 {
 
                     // Initialized data
-                    JSONValue_t *p_color_attachment = pp_color_attachments[i];
+                    json_value *p_color_attachment = pp_color_attachments[i];
 
-                    if (p_color_attachment->type == JSONstring)
+                    if (p_color_attachment->type == JSON_VALUE_STRING)
                     {
                         GXAttachment_t *p_attachment = dict_get(p_instance->context.loading_renderer->attachments, p_color_attachment->string);
 
@@ -3564,9 +3564,9 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
                 {
 
                     // Initialized data
-                    JSONValue_t *p_preserved_attachment = pp_preserved_attachments[i];
+                    json_value *p_preserved_attachment = pp_preserved_attachments[i];
 
-                    if (p_preserved_attachment->type == JSONstring)
+                    if (p_preserved_attachment->type == JSON_VALUE_STRING)
                     {
                         GXAttachment_t *p_attachment = dict_get(p_instance->context.loading_renderer->attachments, p_preserved_attachment->string);
 
@@ -3731,7 +3731,7 @@ int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value 
     }
 }
 
-int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t *p_value )
+int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, json_value *p_value )
 {
 
     // Argument check
@@ -3743,7 +3743,7 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
     // Initialized data
     GXInstance_t   *p_instance        = g_get_active_instance();
     GXAttachment_t *p_attachment      = 0;
-    JSONValue_t    *p_name            = 0,
+    json_value    *p_name            = 0,
                    *p_samples         = 0,
                    *p_format          = 0,
                    *p_load_operation  = 0,
@@ -3753,7 +3753,7 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
     bool            is_final          = false;
 
     // Parse the attachment JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -3801,7 +3801,7 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
         if ( create_attachment(&p_attachment) == 0 ) goto failed_to_create_attachment;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -3825,7 +3825,7 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
             goto wrong_name_type;
 
         // Set the format
-        if ( p_format->type == JSONstring )
+        if ( p_format->type == JSON_VALUE_STRING )
         {
             format = (VkFormat) (size_t) dict_get(format_enumeration_lookup, p_format->string);
 
@@ -3836,21 +3836,21 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
             goto wrong_format_type;
 
         // Set the sample count
-        if ( p_samples->type == JSONinteger )
+        if ( p_samples->type == JSON_VALUE_INTEGER )
             samples = p_samples->integer;
         // Default
         else
             goto wrong_name_type;
 
         // Set the load operation
-        if ( p_load_operation->type == JSONstring )
+        if ( p_load_operation->type == JSON_VALUE_STRING )
             loadOp = (VkAttachmentLoadOp) (size_t) dict_get(attachment_load_operations, p_load_operation->string);
         // Default
         else
             goto wrong_load_operation_type;
 
         // Set the store operation
-        if ( p_store_operation->type == JSONstring )
+        if ( p_store_operation->type == JSON_VALUE_STRING )
             storeOp = (VkAttachmentStoreOp) (size_t) dict_get(attachment_store_operations, p_store_operation->string);
         // Default
         else
@@ -3861,7 +3861,7 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
         // (Maybe) set the stencil store operation
 
         // Set the initial layout
-        if ( p_initial_layout->type == JSONstring )
+        if ( p_initial_layout->type == JSON_VALUE_STRING )
         {
             initialLayout = (VkImageLayout) (size_t) dict_get(image_layouts, p_initial_layout->string);
         }
@@ -3870,7 +3870,7 @@ int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t 
             goto wrong_initial_layout_type;
 
         // Set the final layout
-        if ( p_final_layout->type == JSONstring )
+        if ( p_final_layout->type == JSON_VALUE_STRING )
         {
             finalLayout = (VkImageLayout) (size_t) dict_get(image_layouts, p_final_layout->string);
         }
@@ -4305,7 +4305,7 @@ int construct_image_view ( VkImageView *ret, GXImage_t *p_image, VkImageViewType
     }
 }
 
-int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
+int load_image_as_json_value ( GXImage_t **pp_image, json_value *p_value )
 {
 
     // Argument check
@@ -4317,7 +4317,7 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
     // Initialized data
     GXInstance_t *p_instance        = g_get_active_instance();
     GXImage_t    *p_image           = 0;
-    JSONValue_t  *p_name            = 0,
+    json_value  *p_name            = 0,
                  *p_samples         = 0,
                  *p_format          = 0,
                  *p_load_operation  = 0,
@@ -4326,7 +4326,7 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
                  *p_final_layout    = 0;
 
     // Parse the image JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialzed data
@@ -4375,7 +4375,7 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
         if ( create_image(&p_image) == 0 ) goto failed_to_create_image;
 
         // Set the name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -4395,7 +4395,7 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
             goto wrong_name_type;
 
         // Set the format
-        if ( p_format->type == JSONstring )
+        if ( p_format->type == JSON_VALUE_STRING )
         {
             format = (VkFormat) (size_t) dict_get(format_enumeration_lookup, p_format->string);
 
@@ -4406,21 +4406,21 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
             goto wrong_format_type;
 
         // Set the sample count
-        if ( p_samples->type == JSONinteger )
+        if ( p_samples->type == JSON_VALUE_INTEGER )
             samples = p_samples->integer;
         // Default
         else
             goto wrong_samples_type;
 
         // Set the load operation
-        if ( p_load_operation->type == JSONstring )
+        if ( p_load_operation->type == JSON_VALUE_STRING )
             loadOp = (VkAttachmentLoadOp) (size_t) dict_get(attachment_load_operations, p_load_operation->string);
         // Default
         else
             goto wrong_load_operation_type;
 
         // Set the store operation
-        if ( p_store_operation->type == JSONstring )
+        if ( p_store_operation->type == JSON_VALUE_STRING )
             storeOp = (VkAttachmentStoreOp) (size_t) dict_get(attachment_store_operations, p_store_operation->string);
         // Default
         else
@@ -4431,7 +4431,7 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
         // (Maybe) set the stencil store operation
 
         // Set the initial layout
-        if ( p_initial_layout->type == JSONstring )
+        if ( p_initial_layout->type == JSON_VALUE_STRING )
         {
             initialLayout = (VkImageLayout) (size_t) dict_get(image_layouts, p_initial_layout->string);
         }
@@ -4440,7 +4440,7 @@ int load_image_as_json_value ( GXImage_t **pp_image, JSONValue_t *p_value )
             goto wrong_initial_layout_type;
 
         // Set the final layout
-        if ( p_final_layout->type == JSONstring )
+        if ( p_final_layout->type == JSON_VALUE_STRING )
         {
             finalLayout = (VkImageLayout) (size_t) dict_get(image_layouts, p_final_layout->string);
         }

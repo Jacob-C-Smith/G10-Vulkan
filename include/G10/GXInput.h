@@ -173,7 +173,7 @@ DLLEXPORT int load_input_as_json_text ( GXInput_t **pp_input, char *text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_value );
+DLLEXPORT int load_input_as_json_value ( GXInput_t **pp_input, json_value *p_value );
 
 /** !
  *  Load a bind from a JSON value
@@ -183,7 +183,7 @@ DLLEXPORT int load_input_as_json_value ( GXInput_t **pp_input, JSONValue_t *p_va
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_bind_as_json_value ( GXBind_t **pp_bind, JSONValue_t *p_value );
+DLLEXPORT int load_bind_as_json_value ( GXBind_t **pp_bind, json_value *p_value );
 DLLEXPORT int construct_bind ( GXBind_t **pp_bind , char *name, char **keys );
 
 // Callback registration

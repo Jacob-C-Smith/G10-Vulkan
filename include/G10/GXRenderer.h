@@ -218,7 +218,7 @@ DLLEXPORT int load_renderer_as_json_text ( GXRenderer_t   **pp_renderer, char *t
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, JSONValue_t *p_value );
+DLLEXPORT int load_renderer_as_json_value ( GXRenderer_t **pp_renderer, json_value *p_value );
 
 /** !
  *  Load a render pass from a JSON file
@@ -257,7 +257,7 @@ DLLEXPORT int load_render_pass_as_json_text ( GXRenderPass_t **pp_render_pass, c
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, JSONValue_t *p_value );
+DLLEXPORT int load_render_pass_as_json_value ( GXRenderPass_t **pp_render_pass, json_value *p_value );
 
 /** !
  *  Load a subpass from a JSON file
@@ -296,7 +296,7 @@ DLLEXPORT int load_subpass_as_json_text ( GXSubpass_t **pp_subpass, char *text )
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, JSONValue_t *p_value );
+DLLEXPORT int load_subpass_as_json_value ( GXSubpass_t **pp_subpass, json_value *p_value );
 
 /** !
  *  Allocate and construct a Vulkan image
@@ -377,7 +377,7 @@ DLLEXPORT int load_attachment_as_json_text ( GXAttachment_t **pp_attachment, cha
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, JSONValue_t *p_value );
+DLLEXPORT int load_attachment_as_json_value ( GXAttachment_t **pp_attachment, json_value *p_value );
 
 // Logging
 /** !

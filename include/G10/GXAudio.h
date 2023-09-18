@@ -84,7 +84,7 @@ DLLEXPORT int load_sound_as_json ( GXSound_t** pp_sound, char* text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_sound_as_json_value ( GXSound_t** pp_sound, JSONValue_t *p_value );
+DLLEXPORT int load_sound_as_json_value ( GXSound_t** pp_sound, json_value *p_value );
 
 // Mutators
 /** !

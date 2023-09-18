@@ -83,7 +83,7 @@ DLLEXPORT int load_ai_as_json_text ( GXAI_t **pp_ai, char *text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_ai_as_json_value ( GXAI_t **pp_ai, JSONValue_t *p_value );
+DLLEXPORT int load_ai_as_json_value ( GXAI_t **pp_ai, json_value *p_value );
 
 
 /** !

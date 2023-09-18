@@ -85,7 +85,7 @@ DLLEXPORT int load_entity_as_json_text ( GXEntity_t **pp_entity, char* text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_entity_as_json_value ( GXEntity_t **pp_entity, JSONValue_t *p_value );
+DLLEXPORT int load_entity_as_json_value ( GXEntity_t **pp_entity, json_value *p_value );
 
 // Physics
 /** !
@@ -115,7 +115,7 @@ DLLEXPORT int calculate_entity_force ( GXEntity_t *p_entity );
 DLLEXPORT int move_entity ( GXEntity_t *p_entity );
 
 // Info
-DLLEXPORT int entity_info ( GXEntity_t  *p_entity );
+DLLEXPORT int entity_info ( GXEntity_t  *p_entity, size_t idx );
 
 // AI
 /** !

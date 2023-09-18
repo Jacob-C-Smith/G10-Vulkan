@@ -84,12 +84,12 @@ DLLEXPORT int load_part ( GXPart_t   **pp_part, char *path );
  * @return 1 on success, 0 on error
  */
 DLLEXPORT int load_part_as_json_text ( GXPart_t **pp_part, char *text );
-DLLEXPORT int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value );
+DLLEXPORT int load_part_as_json_value ( GXPart_t **pp_part, json_value *p_value );
 
 // Info
 
 // TODO: Document
-DLLEXPORT int part_info ( GXPart_t *p_part );
+DLLEXPORT int part_info ( GXPart_t *p_part, size_t idx );
 
 // Destructors
 /** !

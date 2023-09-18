@@ -157,11 +157,11 @@ int load_server_as_json ( GXServer_t **pp_server, char *text )
 
 		// Get the name
 		token       = (JSONToken_t *) dict_get(json, "name");
-		name        = JSON_VALUE(token, JSONstring);
+		name        = JSON_VALUE(token, JSON_VALUE_STRING);
 
 		// Get the host
 		token       = (JSONToken_t *) dict_get(json, "host");
-		host        = JSON_VALUE(token, JSONstring);
+		host        = JSON_VALUE(token, JSON_VALUE_STRING);
 
 		// Get the port
 		token       = (JSONToken_t *) dict_get(json, "port");
@@ -173,7 +173,7 @@ int load_server_as_json ( GXServer_t **pp_server, char *text )
 
 		// Get the password
 		token       = (JSONToken_t *) dict_get(json, "password");
-		password    = JSON_VALUE(token, JSONstring);
+		password    = JSON_VALUE(token, JSON_VALUE_STRING);
 
 		// Get the tick rate
 		token       = (JSONToken_t *) dict_get(json, "tick rate");
@@ -626,7 +626,7 @@ int server_wait ( GXInstance_t *p_instance )
 
 		client_name_len = strlen(connect_command->connect.name);
 		
-		extern int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value );
+		extern int load_thread_as_json_value ( GXThread_t **pp_thread, json_value *p_value );
 
 		// Load a player thread
 		load_thread_as_json_value(&server_thread, "G10/client thread.json");

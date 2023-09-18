@@ -81,7 +81,7 @@ DLLEXPORT int load_transform_as_json_text ( GXTransform_t **pp_transform, char *
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_transform_as_json_value ( GXTransform_t **pp_transform, JSONValue_t *p_value );
+DLLEXPORT int load_transform_as_json_value ( GXTransform_t **pp_transform, json_value *p_value );
 
 /** !
  *  Construct a transform from a location vector, a rotation quaternion, and a scale vector

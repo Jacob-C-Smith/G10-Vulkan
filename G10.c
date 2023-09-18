@@ -16,7 +16,7 @@ static GXInstance_t *active_instance = 0;
  *
  * @return 1 on success, 0 on error
 */
-int  g_pick_physical_device ( JSONValue_t *p_value );
+int  g_pick_physical_device ( json_value *p_value );
 
 
 /** !
@@ -26,7 +26,7 @@ int  g_pick_physical_device ( JSONValue_t *p_value );
  *
  * @return 1 on success, 0 on error
 */
-int g_construct_vulkan_instance ( JSONValue_t *p_value );
+int g_construct_vulkan_instance ( json_value *p_value );
 
 /** !
  * Create a surface using the builds specified WSI
@@ -42,7 +42,7 @@ int g_construct_vulkan_surface ( void );
  *
  * @return 1 on success, 0 on error
 */
-int g_construct_vulkan_physical_device ( JSONValue_t *p_value );
+int g_construct_vulkan_physical_device ( json_value *p_value );
 
 /** !
  * Create a logical device
@@ -51,7 +51,7 @@ int g_construct_vulkan_physical_device ( JSONValue_t *p_value );
  *
  * @return 1 on success, 0 on error
 */
-int g_construct_vulkan_logical_device ( JSONValue_t *p_value );
+int g_construct_vulkan_logical_device ( json_value *p_value );
 
 /** !
  * Create a swapchain
@@ -60,11 +60,11 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value );
  *
  * @return 1 on success, 0 on error
 */
-int g_construct_vulkan_swap_chain ( JSONValue_t *p_value );
+int g_construct_vulkan_swap_chain ( json_value *p_value );
 
-int g_construct_vulkan_image_views ( JSONValue_t *p_value );
-int g_construct_vulkan_command_pool ( JSONValue_t *p_value );
-int g_construct_vulkan_command_buffers ( JSONValue_t *p_value );
+int g_construct_vulkan_image_views ( json_value *p_value );
+int g_construct_vulkan_command_pool ( json_value *p_value );
+int g_construct_vulkan_command_buffers ( json_value *p_value );
 
 int  pick_physical_device   ( char **required_extension_names );
 int  create_logical_device  ( char **required_extension_names );
@@ -134,7 +134,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
     GXInstance_t  *p_instance                      = 0;
     size_t         text_len                        = g_load_file(path, 0, true);
     char          *text                            = calloc(text_len, sizeof(u8));
-    JSONValue_t   *p_value                         = 0,
+    json_value   *p_value                         = 0,
                   *p_name                          = 0,
                   *p_window                        = 0,
                   *p_requested_physical_device     = 0,
@@ -156,11 +156,11 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
     // Load the file
     if ( g_load_file(path, text, true) == 0 ) goto no_file;
 
-    // Parse JSON text into a JSONValue_t *
+    // Parse JSON text into a json_value *
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
 
     // Parse the JSON
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -206,7 +206,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         {
 
             // Parse the log file as a string
-            if ( p_log_file_i->type == JSONstring )
+            if ( p_log_file_i->type == JSON_VALUE_STRING )
 
                 // Open the log file using the provided path
                 log_file = fopen(p_log_file_i->string, "w");
@@ -224,11 +224,11 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         {
 
             // Parse the window as a JSON object
-            if ( p_window->type == JSONobject )
+            if ( p_window->type == JSON_VALUE_OBJECT )
             {
 
                 // Initialized data
-                JSONValue_t *p_window_width      = 0,
+                json_value *p_window_width      = 0,
                             *p_window_height     = 0,
                             *p_window_title      = 0,
                             *p_window_fullscreen = 0;
@@ -257,7 +257,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 }
 
                 // Set the window title
-                if ( p_window_title->type == JSONstring )
+                if ( p_window_title->type == JSON_VALUE_STRING )
                 {
 
                     // Initialized data
@@ -277,14 +277,14 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                     goto wrong_window_title_type;
 
                 // Set the window width
-                if ( p_window_width->type == JSONinteger )
+                if ( p_window_width->type == JSON_VALUE_INTEGER )
                     p_instance->window.width = (u32)p_window_width->integer;
                 // Default
                 else
                     goto wrong_window_width_type;
 
                 // Set the window height
-                if ( p_window_height->type == JSONinteger )
+                if ( p_window_height->type == JSON_VALUE_INTEGER )
                     p_instance->window.height = (u32)p_window_height->integer;
                 // Default
                 else
@@ -295,7 +295,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 {
 
                     // Parse the fullscreen property as a boolean
-                    if ( p_window_fullscreen->type == JSONboolean )
+                    if ( p_window_fullscreen->type == JSON_VALUE_BOOLEAN )
                         p_instance->window.fullscreen = p_window_fullscreen->boolean;
 
                     // Wrong type
@@ -366,13 +366,13 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         {
 
             // Parse the Vulkan properties
-            if ( p_vulkan->type == JSONobject )
+            if ( p_vulkan->type == JSON_VALUE_OBJECT )
             {
 
                 // Initialized data
                 char        **device_extensions      = 0;
                 size_t        device_extension_count = 0;
-                JSONValue_t  *p_vulkan_device        = 0,
+                json_value  *p_vulkan_device        = 0,
                              *p_vulkan_instance      = 0,
                              *p_vulkan_swapchain     = 0;
 
@@ -399,7 +399,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 }
 
                 // Set the maximum number of buffered frames
-                if ( p_max_buffered_frames->type == JSONinteger )
+                if ( p_max_buffered_frames->type == JSON_VALUE_INTEGER )
                     p_instance->vulkan.max_buffered_frames = (i32) p_max_buffered_frames->integer;
                 // Default
                 else
@@ -447,7 +447,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         {
 
             // Set the name
-            if ( p_name->type == JSONstring )
+            if ( p_name->type == JSON_VALUE_STRING )
             {
 
                 // Initialized data
@@ -484,7 +484,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 if ( p_loading_thread_count )
                 {
                     // Parse the loading thread count as an integer
-                    if ( p_loading_thread_count->type == JSONinteger )
+                    if ( p_loading_thread_count->type == JSON_VALUE_INTEGER )
                         p_instance->loading_thread_count = p_loading_thread_count->integer;
                     // Default
                     else
@@ -537,7 +537,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
             {
 
                 // Initialized data
-                JSONValue_t *p_material_cache_count = 0,
+                json_value *p_material_cache_count = 0,
                             *p_part_cache_count     = 0,
                             *p_shader_cache_count   = 0,
                             *p_ai_cache_count       = 0;
@@ -560,7 +560,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 {
 
                     // Parse the material cache count as an integer
-                    if ( p_material_cache_count->type == JSONinteger )
+                    if ( p_material_cache_count->type == JSON_VALUE_INTEGER )
                         dict_construct(&p_instance->cache.materials, p_material_cache_count->integer);
                     // Default
                     else
@@ -572,7 +572,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 {
 
                     // Parse the part cache count as an integer
-                    if ( p_part_cache_count->type == JSONinteger )
+                    if ( p_part_cache_count->type == JSON_VALUE_INTEGER )
                         dict_construct(&p_instance->cache.parts, p_part_cache_count->integer);
                     // Default
                     else
@@ -584,7 +584,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 {
 
                     // Parse the shader cache count as an integer
-                    if ( p_shader_cache_count->type == JSONinteger )
+                    if ( p_shader_cache_count->type == JSON_VALUE_INTEGER )
                         dict_construct(&p_instance->cache.shaders, p_shader_cache_count->integer);
                     // Default
                     else
@@ -595,7 +595,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 if ( p_ai_cache_count )
                 {
                     // Parse the ai cache count as an integer
-                    if ( p_ai_cache_count->type == JSONinteger )
+                    if ( p_ai_cache_count->type == JSON_VALUE_INTEGER )
                         dict_construct(&p_instance->cache.ais, p_ai_cache_count->integer);
                     // Default
                     else
@@ -660,7 +660,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
 
                 // Initialized data
                 size_t        schedule_count = 0;
-                JSONValue_t **pp_elements    = 0;
+                json_value **pp_elements    = 0;
 
                 // Get the contents of the array
                 {
@@ -669,7 +669,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                     (void)array_get(p_schedules->list, 0, &schedule_count );
 
                     // Allocate an array for the elements
-                    pp_elements = calloc(schedule_count+1, sizeof(JSONValue_t *));
+                    pp_elements = calloc(schedule_count+1, sizeof(json_value *));
 
                     // Error check
                     if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -683,7 +683,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                 {
 
                     // Initialized data
-                    JSONValue_t  *p_element  = pp_elements[i];
+                    json_value  *p_element  = pp_elements[i];
                     GXSchedule_t *i_schedule = 0;
 
                     // Parse the schedule as an object
@@ -1212,7 +1212,7 @@ int setup_debug_messenger ( VkDebugUtilsMessengerCreateInfoEXT **debug_messenger
     }
 }
 
-int g_construct_vulkan_instance ( JSONValue_t *p_value )
+int g_construct_vulkan_instance ( json_value *p_value )
 {
 
     // Argument check
@@ -1232,7 +1232,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
     size_t                 requested_extensions_count  = 0,
                            requested_layers_count      = 0,
                            validation_layers_count     = 0;
-    JSONValue_t           *p_extensions                = 0,
+    json_value           *p_extensions                = 0,
                           *p_validation_layers         = 0,
                           *p_application               = 0;
     VkResult               result                      = 0;
@@ -1241,7 +1241,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
     GXInstance_t          *p_instance                  = g_get_active_instance();
 
     // Parse the JSON
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -1272,11 +1272,11 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
         dict_construct(&validation_layers, 32);
 
         // Parse the application object
-        if ( p_application->type == JSONobject )
+        if ( p_application->type == JSON_VALUE_OBJECT )
         {
 
             // Initialized data
-            JSONValue_t *p_application_name    = 0,
+            json_value *p_application_name    = 0,
                         *p_application_version = 0;
 
             // Parse the JSON
@@ -1295,7 +1295,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
             {
 
                 // Parse the value as a string
-                if ( p_application_name->type == JSONstring )
+                if ( p_application_name->type == JSON_VALUE_STRING )
                 {
                     // Initialized data
                     size_t app_name_len = strlen(p_application_name->string);
@@ -1336,12 +1336,12 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
             {
 
                 // Parse the application version as an array
-                if ( p_application_version->type == JSONarray )
+                if ( p_application_version->type == JSON_VALUE_ARRAY )
                 {
 
                     // Initialized data
                     size_t version_array_len = 0;
-                    JSONValue_t *pp_applicaiton_version[3] = { 0, 0, 0 };
+                    json_value *pp_applicaiton_version[3] = { 0, 0, 0 };
 
                     // Dump the array
                     {
@@ -1357,21 +1357,21 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
                     }
 
                     // Set the major version number
-                    if ( pp_applicaiton_version[0]->type == JSONinteger )
+                    if ( pp_applicaiton_version[0]->type == JSON_VALUE_INTEGER )
                         application_version_major = pp_applicaiton_version[0]->integer;
                     // Default
                     else
                         goto wrong_vulkan_instance_application_version_element_type;
 
                     // Set the minor version number
-                    if ( pp_applicaiton_version[1]->type == JSONinteger )
+                    if ( pp_applicaiton_version[1]->type == JSON_VALUE_INTEGER )
                         application_version_minor = pp_applicaiton_version[1]->integer;
                     // Default
                     else
                         goto wrong_vulkan_instance_application_version_element_type;
 
                     // Set the patch version number
-                    if ( pp_applicaiton_version[2]->type == JSONinteger )
+                    if ( pp_applicaiton_version[2]->type == JSON_VALUE_INTEGER )
                         application_version_patch = pp_applicaiton_version[2]->integer;
                     // Default
                     else
@@ -1440,7 +1440,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
         {
 
             // Parse the extensions as an array
-            if ( p_extensions->type == JSONarray )
+            if ( p_extensions->type == JSON_VALUE_ARRAY )
             {
 
                 // Dump the requested instance extensions
@@ -1463,8 +1463,8 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
                 // Iterate over each requested extension JSON value, and extract the string
                 for (size_t i = 0; i < requested_extensions_count; i++)
 
-                    // JSONValue_t * -> char *
-                    requested_extensions[i] = ((JSONValue_t *)requested_extensions[i])->string;
+                    // json_value * -> char *
+                    requested_extensions[i] = ((json_value *)requested_extensions[i])->string;
 
             }
             else
@@ -1479,7 +1479,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
         {
 
             // Parse the validation layers as an array
-            if ( p_validation_layers->type == JSONarray )
+            if ( p_validation_layers->type == JSON_VALUE_ARRAY )
             {
 
                 // Get the contents of the array
@@ -1488,7 +1488,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
                     array_get(p_validation_layers->list, 0, &requested_layers_count);
 
                     // Allocate for each extension
-                    requested_validation_layers = calloc(requested_layers_count+1, sizeof(JSONValue_t *));
+                    requested_validation_layers = calloc(requested_layers_count+1, sizeof(json_value *));
 
                     // Error check
                     if ( requested_validation_layers == (void *) 0 ) goto no_mem;
@@ -1499,7 +1499,7 @@ int g_construct_vulkan_instance ( JSONValue_t *p_value )
 
                 // Iterate over each requested extension JSON value, and extract the string
                 for (size_t i = 0; i < requested_layers_count; i++)
-                    requested_validation_layers[i] = ((JSONValue_t *)requested_validation_layers[i])->string;
+                    requested_validation_layers[i] = ((json_value *)requested_validation_layers[i])->string;
             }
             // Default
             else
@@ -1732,7 +1732,7 @@ int g_construct_vulkan_surface ( void )
     }
 }
 
-int g_construct_vulkan_physical_device ( JSONValue_t *p_value )
+int g_construct_vulkan_physical_device ( json_value *p_value )
 {
 
     // Argument check
@@ -1744,13 +1744,13 @@ int g_construct_vulkan_physical_device ( JSONValue_t *p_value )
     u32                device_count         = 0;
     size_t             extensions_array_len = 0;
     VkPhysicalDevice  *devices              = 0;
-    JSONValue_t       *p_extensions         = 0,
+    json_value       *p_extensions         = 0,
                       *p_device_name        = 0,
                      **pp_extensions_array  = 0;
     GXInstance_t      *p_instance           = g_get_active_instance();
 
     // Parse the JSON value
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -1777,7 +1777,7 @@ int g_construct_vulkan_physical_device ( JSONValue_t *p_value )
     {
 
         // Parse the device name as a string
-        if ( p_device_name->type == JSONstring )
+        if ( p_device_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -2097,7 +2097,7 @@ int g_construct_vulkan_physical_device ( JSONValue_t *p_value )
         }
 
         // Check device extensions
-        if ( p_extensions->type == JSONarray )
+        if ( p_extensions->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
@@ -2380,7 +2380,7 @@ int g_construct_vulkan_physical_device ( JSONValue_t *p_value )
     }
 }
 
-int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
+int g_construct_vulkan_logical_device ( json_value *p_value )
 {
 
     // Argument check
@@ -2390,12 +2390,12 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
 
     // Initialized data
     GXInstance_t *p_instance     = g_get_active_instance();
-    JSONValue_t  *p_extensions   = 0,
+    json_value  *p_extensions   = 0,
                  *p_features     = 0,
                  *p_queue_counts = 0;
 
     // Parse the JSON
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -2536,7 +2536,7 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
         {
 
             // Initialized data
-            JSONValue_t *p_graphics                   = 0,
+            json_value *p_graphics                   = 0,
                         *p_compute                    = 0,
                         *p_transfer                   = 0;
             size_t       graphics_queue_count         = 0,
@@ -2545,7 +2545,7 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
             bool         has_required_transfer_queues = false;
 
             // Parse the JSON
-            if ( p_queue_counts->type == JSONobject )
+            if ( p_queue_counts->type == JSON_VALUE_OBJECT )
             {
 
                 // Initialized data
@@ -2576,19 +2576,19 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
             {
 
                 // Count graphics queues
-                if ( p_graphics->type == JSONinteger )
+                if ( p_graphics->type == JSON_VALUE_INTEGER )
                     graphics_queue_count += p_graphics->integer;
                 else
                     goto wrong_graphics_type;
 
                 // Count compute queues
-                if ( p_compute->type == JSONinteger )
+                if ( p_compute->type == JSON_VALUE_INTEGER )
                     compute_queue_count += p_compute->integer;
                 else
                     goto wrong_compute_type;
 
                 // Count transfer queues
-                if ( p_transfer->type == JSONinteger )
+                if ( p_transfer->type == JSON_VALUE_INTEGER )
                     transfer_queue_count += p_transfer->integer;
                 else
                     goto wrong_transfer_type;
@@ -2722,12 +2722,12 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
                 array_get(p_extensions->list, (void **) enabled_extension_names, 0);
             }
 
-            // Iterate over each JSONValue_t *
+            // Iterate over each json_value *
             for (size_t i = 0; i < enabled_extension_names_count; i++)
             {
 
-                // JSONValue_t * -> char *
-                enabled_extension_names[i] = ((JSONValue_t *)enabled_extension_names[i])->string;
+                // json_value * -> char *
+                enabled_extension_names[i] = ((json_value *)enabled_extension_names[i])->string;
 
                 // Does the device support the extension?
                 if ( dict_get(p_instance->vulkan.device_extensions, enabled_extension_names[i]) == 0 ) goto missing_extensions;
@@ -2908,7 +2908,7 @@ int g_construct_vulkan_logical_device ( JSONValue_t *p_value )
 
 }
 
-int g_construct_vulkan_swap_chain ( JSONValue_t *p_value )
+int g_construct_vulkan_swap_chain ( json_value *p_value )
 {
 
     // Argument check
@@ -2918,13 +2918,13 @@ int g_construct_vulkan_swap_chain ( JSONValue_t *p_value )
 
     // Initialized data
     GXInstance_t *p_instance = g_get_active_instance();
-    JSONValue_t  *p_present_mode = 0,
+    json_value  *p_present_mode = 0,
                  *p_format       = 0;
     VkFormat      image_format   = p_instance->vulkan.swap_chain.image_format;
     VkExtent2D    image_extent   = { 0 };
 
     // Parse the JSON
-    if ( p_value->type == JSONobject)
+    if ( p_value->type == JSON_VALUE_OBJECT)
     {
 
         // Initialized data
@@ -2959,7 +2959,7 @@ int g_construct_vulkan_swap_chain ( JSONValue_t *p_value )
             extern dict *presentation_modes_lut;
 
             // Parse the provided presentation mode
-            if ( p_present_mode->type == JSONstring )
+            if ( p_present_mode->type == JSON_VALUE_STRING )
                 present_mode = (VkPresentModeKHR) (size_t) dict_get(presentation_modes_lut, p_present_mode->string);
             // Default
             else
@@ -2978,7 +2978,7 @@ int g_construct_vulkan_swap_chain ( JSONValue_t *p_value )
             extern dict *format_enumeration_lookup;
 
             // Parse the provided format
-            if ( p_format->type == JSONstring )
+            if ( p_format->type == JSON_VALUE_STRING )
                 image_format = (VkFormat) (size_t) dict_get(format_enumeration_lookup, p_format->string);
             // Default
             else
@@ -3232,7 +3232,7 @@ int g_construct_vulkan_swap_chain ( JSONValue_t *p_value )
     }
 }
 
-int g_construct_vulkan_image_views ( JSONValue_t *p_value )
+int g_construct_vulkan_image_views ( json_value *p_value )
 {
 
     // Argument check
@@ -3259,7 +3259,7 @@ int g_construct_vulkan_image_views ( JSONValue_t *p_value )
     }
 }
 
-int g_construct_vulkan_command_pool ( JSONValue_t *p_value )
+int g_construct_vulkan_command_pool ( json_value *p_value )
 {
 
     // Argument check
@@ -3286,7 +3286,7 @@ int g_construct_vulkan_command_pool ( JSONValue_t *p_value )
     }
 }
 
-int g_construct_vulkan_command_buffers ( JSONValue_t *p_value )
+int g_construct_vulkan_command_buffers ( json_value *p_value )
 {
 
     // Argument check
@@ -3313,7 +3313,7 @@ int g_construct_vulkan_command_buffers ( JSONValue_t *p_value )
     }
 }
 
-int g_construct_vulkan_sync_objects ( JSONValue_t *p_value )
+int g_construct_vulkan_sync_objects ( json_value *p_value )
 {
 
     // Argument check

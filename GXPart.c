@@ -151,7 +151,7 @@ int load_part_as_json_text ( GXPart_t **pp_part, char* text )
 
     // Initialized data
     GXInstance_t *p_instance  = g_get_active_instance();
-    JSONValue_t  *p_value     = 0;
+    json_value  *p_value     = 0;
 
     // Parse the JSON text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
@@ -208,7 +208,7 @@ int load_part_as_json_text ( GXPart_t **pp_part, char* text )
     }
 }
 
-int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value )
+int load_part_as_json_value ( GXPart_t **pp_part, json_value *p_value )
 {
 
     // Argument check
@@ -220,11 +220,11 @@ int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value )
     // Initialized data
     GXInstance_t *p_instance = g_get_active_instance();
     GXPart_t     *p_part     = 0;
-    JSONValue_t  *p_name     = 0,
+    json_value  *p_name     = 0,
                  *p_path     = 0;
 
     // Parse the JSON as an object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -242,7 +242,7 @@ int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value )
             goto missing_properties;
     }
     // Parse the JSON as a path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load a part from a JSON file
@@ -256,7 +256,7 @@ int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value )
         goto wrong_value_type;
 
     // Check the cache
-    if ( p_name->type == JSONstring )
+    if ( p_name->type == JSON_VALUE_STRING )
     {
 
         // Initialized data
@@ -315,7 +315,7 @@ int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value )
         extern GXPart_t* load_ply(GXPart_t * part, const char* path);
 
         // Load the part as a PLY file
-        if ( p_path->type == JSONstring )
+        if ( p_path->type == JSON_VALUE_STRING )
             load_ply(p_part, p_path->string);
         //  Default
         else
@@ -419,7 +419,7 @@ int load_part_as_json_value ( GXPart_t **pp_part, JSONValue_t *p_value )
     }
 }
 
-int part_info ( GXPart_t *p_part )
+int part_info ( GXPart_t *p_part, size_t idx )
 {
 
     // Argument check

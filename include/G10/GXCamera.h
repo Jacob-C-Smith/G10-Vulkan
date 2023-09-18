@@ -120,7 +120,7 @@ DLLEXPORT int load_camera_as_json_text ( GXCamera_t **pp_camera, char *text );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value );
+DLLEXPORT int load_camera_as_json_value ( GXCamera_t **pp_camera, json_value *p_value );
 
 
 // Functions
@@ -169,7 +169,7 @@ DLLEXPORT int get_camera_position ( void *ret );
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int print_camera ( GXCamera_t *p_camera );
+DLLEXPORT int print_camera ( GXCamera_t *p_camera, size_t idx );
 
 // Destructors
 /** !

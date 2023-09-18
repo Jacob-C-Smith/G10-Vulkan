@@ -219,7 +219,7 @@ int load_camera_as_json_text ( GXCamera_t **pp_camera, char *text )
                  far_clip     = 0,
                  aspect_ratio = 0,
                  fov          = 0;
-    JSONValue_t *p_value      = 0;
+    json_value *p_value      = 0;
 
     // Parse the text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
@@ -274,7 +274,7 @@ int load_camera_as_json_text ( GXCamera_t **pp_camera, char *text )
     }
 }
 
-int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
+int load_camera_as_json_value ( GXCamera_t **pp_camera, json_value *p_value )
 {
 
     // Argument check
@@ -284,7 +284,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
     #endif
 
     // Initialized data
-    JSONValue_t *p_name         = 0,
+    json_value *p_name         = 0,
                 *p_near_clip    = 0,
                 *p_far_clip     = 0,
                 *p_fov          = 0,
@@ -293,7 +293,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
                 *p_up           = 0;
 
     // Parse the camera as a JSON object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -321,7 +321,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             goto missing_properties;
     }
     // Parse the camera as a path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load the camera from the file system
@@ -353,7 +353,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
         if ( create_camera(&p_camera) == 0 ) goto failed_to_allocate_camera;
 
         // Copy the camera name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -373,11 +373,11 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             goto wrong_name_type;
 
         // Set the location
-        if ( p_location->type == JSONarray )
+        if ( p_location->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
-            JSONValue_t **pp_elements          = 0;
+            json_value **pp_elements          = 0;
             size_t        vector_element_count = 0;
 
             // Get the contents of the array
@@ -390,7 +390,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
                 if ( vector_element_count != 3 ) goto location_len_error;
 
                 // Allocate an array for the elements
-                pp_elements = calloc(vector_element_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(vector_element_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -402,9 +402,9 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             // Set the location
             location = (vec3)
             {
-                .x = (float) ((JSONValue_t *)pp_elements[0])->floating,
-                .y = (float) ((JSONValue_t *)pp_elements[1])->floating,
-                .z = (float) ((JSONValue_t *)pp_elements[2])->floating
+                .x = (float) ((json_value *)pp_elements[0])->number,
+                .y = (float) ((json_value *)pp_elements[1])->number,
+                .z = (float) ((json_value *)pp_elements[2])->number
             };
 
             // Clean the scope
@@ -415,11 +415,11 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             goto wrong_location_type;
 
         // Set the target
-        if ( p_target->type == JSONarray )
+        if ( p_target->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
-            JSONValue_t **pp_elements          = 0;
+            json_value **pp_elements          = 0;
             size_t        vector_element_count = 0;
 
             // Get the contents of the array
@@ -432,7 +432,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
                 if ( vector_element_count != 3 ) goto target_len_error;
 
                 // Allocate an array for the elements
-                pp_elements = calloc(vector_element_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(vector_element_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -444,9 +444,9 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             // Set the target
             target = (vec3)
             {
-                .x = (float) ((JSONValue_t *)pp_elements[0])->floating,
-                .y = (float) ((JSONValue_t *)pp_elements[1])->floating,
-                .z = (float) ((JSONValue_t *)pp_elements[2])->floating
+                .x = (float) ((json_value *)pp_elements[0])->number,
+                .y = (float) ((json_value *)pp_elements[1])->number,
+                .z = (float) ((json_value *)pp_elements[2])->number
             };
 
             // Clean the scope
@@ -457,11 +457,11 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             goto wrong_target_type;
 
         // Set the up vector
-        if ( p_up->type == JSONarray )
+        if ( p_up->type == JSON_VALUE_ARRAY )
         {
 
             // Initialized data
-            JSONValue_t **pp_elements          = 0;
+            json_value **pp_elements          = 0;
             size_t        vector_element_count = 0;
 
             // Get the contents of the array
@@ -474,7 +474,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
                 if ( vector_element_count != 3 ) goto up_len_error;
 
                 // Allocate an array for the elements
-                pp_elements = calloc(vector_element_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(vector_element_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -486,9 +486,9 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             // Set the up vector
             up = (vec3)
             {
-                .x = (float) ((JSONValue_t *)pp_elements[0])->floating,
-                .y = (float) ((JSONValue_t *)pp_elements[1])->floating,
-                .z = (float) ((JSONValue_t *)pp_elements[2])->floating
+                .x = (float) ((json_value *)pp_elements[0])->number,
+                .y = (float) ((json_value *)pp_elements[1])->number,
+                .z = (float) ((json_value *)pp_elements[2])->number
             };
 
             // Clean the scope
@@ -499,15 +499,15 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
             goto wrong_up_type;
 
         // Set the near clip
-        if ( p_near_clip->type == JSONfloat )
-            near_clip = (float) p_near_clip->floating;
+        if ( p_near_clip->type == JSON_VALUE_NUMBER )
+            near_clip = (float) p_near_clip->number;
         // Default
         else
             goto wrong_near_clip_type;
         
         // Set the far clip
-        if ( p_far_clip->type == JSONfloat )
-            far_clip = (float) p_far_clip->floating;
+        if ( p_far_clip->type == JSON_VALUE_NUMBER )
+            far_clip = (float) p_far_clip->number;
         // Default
         else
             goto wrong_far_clip_type;
@@ -516,8 +516,8 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
         aspect_ratio = (float) p_instance->window.width / (float) p_instance->window.height;
 
         // Set the fov
-        if ( p_fov->type == JSONfloat )
-            fov = (float) p_fov->floating;
+        if ( p_fov->type == JSON_VALUE_NUMBER )
+            fov = (float) p_fov->number;
         // Default
         else
             goto wrong_fov_type;
@@ -701,7 +701,7 @@ int load_camera_as_json_value ( GXCamera_t **pp_camera, JSONValue_t *p_value )
     }
 }
 
-int print_camera ( GXCamera_t *p_camera )
+int print_camera ( GXCamera_t *p_camera, size_t idx )
 {
 
     // Argument check

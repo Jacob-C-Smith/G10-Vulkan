@@ -8,8 +8,8 @@
 
 // Forward declarations
 int load_task_as_json ( GXTask_t **pp_task, char *text );
-int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value );
-int load_task_as_json_value ( GXTask_t **pp_task, JSONValue_t *p_value );
+int load_thread_as_json_value ( GXThread_t **pp_thread, json_value *p_value );
+int load_task_as_json_value ( GXTask_t **pp_task, json_value *p_value );
 
 dict *scheduler_tasks = 0;
 
@@ -342,7 +342,7 @@ int load_schedule_as_json_text ( GXSchedule_t **pp_schedule, char *text )
     GXInstance_t  *p_instance    = g_get_active_instance();
     char          *name          = 0;
     array         *p_threads     = 0;
-    JSONValue_t   *p_value       = 0;
+    json_value   *p_value       = 0;
 
     // Parse the text into a JSON value
     if ( parse_json_value(text, 0, &p_value) == 0 ) goto failed_to_parse_json;
@@ -410,7 +410,7 @@ int load_schedule_as_json_text ( GXSchedule_t **pp_schedule, char *text )
     }
 }
 
-int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_value )
+int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, json_value *p_value )
 {
 
     // Argument check
@@ -421,11 +421,11 @@ int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_val
 
     // Initialized data
     GXInstance_t *p_instance    = g_get_active_instance();
-    JSONValue_t  *p_name        = 0,
+    json_value  *p_name        = 0,
                  *p_threads     = 0;
 
     // Parse the schedule as an object
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
@@ -443,7 +443,7 @@ int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_val
             goto missing_properties;
     }
     // Parse the schedule as a path
-    else if ( p_value->type == JSONstring )
+    else if ( p_value->type == JSON_VALUE_STRING )
     {
 
         // Load the schedule from the path
@@ -465,7 +465,7 @@ int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_val
         char         *name       = 0;
 
         // Copy the schedule name
-        if ( p_name->type == JSONstring )
+        if ( p_name->type == JSON_VALUE_STRING )
         {
 
             // Initialized data
@@ -489,7 +489,7 @@ int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_val
         {
 
             // Initialized data
-            JSONValue_t **pp_elements  = 0;
+            json_value **pp_elements  = 0;
             size_t        thread_count = 0;
 
             // Get the array contents
@@ -499,7 +499,7 @@ int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_val
                 array_get(p_threads->list, 0, &thread_count);
 
                 // Allocate an array for the elements
-                pp_elements = calloc(thread_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(thread_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -516,11 +516,11 @@ int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_val
             {
 
                 // Initialized data
-                JSONValue_t *p_thread_json_value = pp_elements[i];
+                json_value *p_thread_json_value = pp_elements[i];
                 GXThread_t  *p_thread            = 0;
 
                 // Type check
-                if ( p_thread_json_value->type != JSONobject ) goto wrong_thread_type;
+                if ( p_thread_json_value->type != JSON_VALUE_OBJECT ) goto wrong_thread_type;
 
                 // Load the thread
                 if ( load_thread_as_json_value(&p_thread, p_thread_json_value) == 0 ) goto failed_to_load_thread;
@@ -998,7 +998,7 @@ int stop_schedule ( GXSchedule_t *schedule )
     return 0;
 }
 
-int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value )
+int load_thread_as_json_value ( GXThread_t **pp_thread, json_value *p_value )
 {
 
     // Argument check
@@ -1014,18 +1014,18 @@ int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value )
     size_t       task_count  = 0;
     array       *p_tasks     = 0;
 
-    // TODO: Refactor to use JSONValue_t *
+    // TODO: Refactor to use json_value *
     // Parse the thread JSON
-    if (p_value->type == JSONobject)
+    if (p_value->type == JSON_VALUE_OBJECT)
     {
 
         // Initialized data
         dict *p_dict = p_value->object;
 
         // Parse the JSON values into constructor parameters
-        name        = ((JSONValue_t *)dict_get(p_dict, "name"))->string;
-        description = ((JSONValue_t *)dict_get(p_dict, "description"))->string;
-        p_tasks     = ((JSONValue_t *)dict_get(p_dict, "tasks"))->list;
+        name        = ((json_value *)dict_get(p_dict, "name"))->string;
+        description = ((json_value *)dict_get(p_dict, "description"))->string;
+        p_tasks     = ((json_value *)dict_get(p_dict, "tasks"))->list;
 
         // Error check
         if ( ( name && description && p_tasks ) == 0 ) goto missing_properties;
@@ -1064,7 +1064,7 @@ int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value )
         {
 
             // Initialized data
-            JSONValue_t **pp_elements  = 0;
+            json_value **pp_elements  = 0;
 
             // Dump the array contents
             {
@@ -1073,7 +1073,7 @@ int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value )
                 array_get(p_tasks, 0, &task_count);
 
                 // Allocate an array for the elements
-                pp_elements = calloc(task_count+1, sizeof(JSONValue_t *));
+                pp_elements = calloc(task_count+1, sizeof(json_value *));
 
                 // Error check
                 if ( pp_elements == (void *) 0 ) goto no_mem;
@@ -1102,11 +1102,11 @@ int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value )
             {
 
                 // Initialized data
-                JSONValue_t *p_thread_json_value = pp_elements[i];
+                json_value *p_thread_json_value = pp_elements[i];
                 GXTask_t    *p_task              = 0;
 
                 // Type check
-                if ( p_thread_json_value->type != JSONobject )
+                if ( p_thread_json_value->type != JSON_VALUE_OBJECT )
                     return 0; // TODO: Error handling
 
                 // Load the thread
@@ -1239,7 +1239,7 @@ int load_thread_as_json_value ( GXThread_t **pp_thread, JSONValue_t *p_value )
 
 }
 
-int load_task_as_json_value ( GXTask_t **pp_task, JSONValue_t *p_value )
+int load_task_as_json_value ( GXTask_t **pp_task, json_value *p_value )
 {
 
     // Argument check
@@ -1257,22 +1257,22 @@ int load_task_as_json_value ( GXTask_t **pp_task, JSONValue_t *p_value )
     // Allocate memory for the task struct
     if ( create_task(&p_task) == 0 ) goto failed_to_create_task;
 
-    // TODO: Refactor to use JSONValue_t *
+    // TODO: Refactor to use json_value *
     // Parse the task JSON
-    if ( p_value->type == JSONobject )
+    if ( p_value->type == JSON_VALUE_OBJECT )
     {
 
         // Initialized data
         dict *p_dict = p_value->object;
         
         // Parse the JSON values into constructor parameters
-        task_name   = ((JSONValue_t *)dict_get(p_dict, "task"))->string;
+        task_name   = ((json_value *)dict_get(p_dict, "task"))->string;
 
         if ( dict_get(p_dict, "wait thread") )
-            wait_thread = ((JSONValue_t *)dict_get(p_dict, "wait thread"))->string;
+            wait_thread = ((json_value *)dict_get(p_dict, "wait thread"))->string;
 
         if ( dict_get(p_dict, "wait thread") )
-            wait_task   = ((JSONValue_t *)dict_get(p_dict, "wait task"))->string;
+            wait_task   = ((json_value *)dict_get(p_dict, "wait task"))->string;
 
         // Error check
         if ( ( task_name ) == 0 ) goto missing_properties;

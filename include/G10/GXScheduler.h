@@ -124,7 +124,7 @@ DLLEXPORT int load_schedule_as_json_text ( GXSchedule_t **pp_schedule, char *tex
  *
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, JSONValue_t *p_value );
+DLLEXPORT int load_schedule_as_json_value ( GXSchedule_t **pp_schedule, json_value *p_value );
 
 /** !
  *  Load a thread from a JSON file

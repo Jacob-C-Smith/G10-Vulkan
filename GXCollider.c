@@ -152,7 +152,7 @@ int load_collider ( GXCollider_t **pp_collider, const char *path )
 int load_collider_as_json_text ( GXCollider_t **collider, char *text )
 {
     GXCollider_t  *i_collider    = 0;
-    JSONValue_t   *collider_json = 0;
+    json_value   *collider_json = 0;
     char          *type          = 0,
                  **max           = 0,
                  **min           = 0;
@@ -163,13 +163,13 @@ int load_collider_as_json_text ( GXCollider_t **collider, char *text )
         JSONToken_t *token = 0;
 
         token = (JSONToken_t *) dict_get(collider_json, "type");
-        type  = JSON_VALUE(token, JSONstring);
+        type  = JSON_VALUE(token, JSON_VALUE_STRING);
 
         token = (JSONToken_t *) dict_get(collider_json, "max");
-        max   = JSON_VALUE(token, JSONarray);
+        max   = JSON_VALUE(token, JSON_VALUE_ARRAY);
 
         token = (JSONToken_t *) dict_get(collider_json, "min");
-        min   = JSON_VALUE(token, JSONarray);
+        min   = JSON_VALUE(token, JSON_VALUE_ARRAY);
 
     }
 
