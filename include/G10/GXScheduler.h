@@ -16,6 +16,9 @@
 // SDL
 #include <SDL.h>
 
+// sync submodule
+#include <sync/sync.h>
+
 // dict submodule
 #include <dict/dict.h>
 

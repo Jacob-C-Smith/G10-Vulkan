@@ -820,10 +820,16 @@ int main_work ( GXThread_t *p_thread )
     // Initialized data
     GXTask_t     **tasks  = p_thread->tasks;
     GXInstance_t  *p_instance = g_get_active_instance();
+    const size_t ts_div  = timer_seconds_divisor();
+    size_t         last_ts = 0;
+    size_t         next_ts = 0;
+    size_t         cur_ts = 0;
 
     // Run until told otherwise
     while (p_thread->running)
     {
+        last_ts = timer_high_precision();
+        next_ts = last_ts + (ts_div / p_instance->time.fixed_tick_rate);
 
         // Iterate over each task
         for (size_t i = 0; i < p_thread->task_count; i++)
@@ -867,6 +873,22 @@ int main_work ( GXThread_t *p_thread )
         for (size_t i = 0; i < p_thread->task_count; i++)
             p_thread->complete_tasks[i] = 0;
 
+        // Wait for the next tick
+        while( timer_high_precision() < next_ts );
+
+        cur_ts++;
+
+        if ( cur_ts & 1 )
+        {
+            printf("TICK\n");
+        }
+        else
+        {
+            printf("TOCK\n");
+        }
+
+        fflush(stdout);
+        
     }
 
     // Success

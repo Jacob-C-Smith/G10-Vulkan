@@ -278,6 +278,7 @@ struct GXInstance_s
     struct
     {
         size_t  ticks;
+        size_t  fixed_tick_rate;
         u32     d,
                 last_time;
         u64     clock_div;

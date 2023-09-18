@@ -134,7 +134,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
     GXInstance_t  *p_instance                      = 0;
     size_t         text_len                        = g_load_file(path, 0, true);
     char          *text                            = calloc(text_len, sizeof(u8));
-    json_value   *p_value                         = 0,
+    json_value    *p_value                         = 0,
                   *p_name                          = 0,
                   *p_window                        = 0,
                   *p_requested_physical_device     = 0,
@@ -151,7 +151,8 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
                   *p_requested_validation_layers   = 0,
                   *p_requested_instance_extensions = 0,
                   *p_device_extensions             = 0,
-                  *p_schedules                     = 0;
+                  *p_schedules                     = 0,
+                  *p_fixed_tick_rate               = 0;
 
     // Load the file
     if ( g_load_file(path, text, true) == 0 ) goto no_file;
@@ -180,6 +181,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         p_renderer             = dict_get(p_dict, "renderer");
         p_server               = dict_get(p_dict, "server");
         p_schedules            = dict_get(p_dict, "schedules");
+        p_fixed_tick_rate      = dict_get(p_dict, "fixed tick rate");
 
         // Error check
         if ( ! ( p_name /* && p_schedule, so on */ ) ) goto missing_properties;
@@ -200,6 +202,8 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
 
     // Global initialization
     {
+
+        timer_init();
 
         // Log file initialization
         if ( p_log_file_i )
@@ -443,6 +447,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         else
             goto no_vulkan_property;
         */
+        
         // G10 Initialization
         {
 
@@ -721,6 +726,9 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
 
             // This prevents divide by zero errors when the game loop starts
             p_instance->time.delta_time = 0.001f;
+
+            // TODO: Check type of json_value
+            p_instance->time.fixed_tick_rate = p_fixed_tick_rate->integer;
 
             // The instance is running
             p_instance->running = true;

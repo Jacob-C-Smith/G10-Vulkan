@@ -92,8 +92,7 @@ int user_code_callback ( GXInstance_t *p_instance )
 int gets_called_once_a_tick ( GXInstance_t *p_instance )
 {
 
-    printf("WE DID IT COMRADE!\n");
-
+    // Success
     return 1;
 }
 
