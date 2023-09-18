@@ -14,7 +14,7 @@
 #include <string.h>
 
 // Vulkan
-#include <vulkan/vulkan.h>
+//#include <vulkan/vulkan.h>
 
 // G10
 #include <G10/GXtypedef.h>
@@ -31,17 +31,17 @@ enum g10_pipeline_e
 struct GXDescriptor_s
 {
     char                         *name;
-    VkDescriptorType              type;
+    //VkDescriptorType              type;
     size_t                        index;
-    VkDescriptorSetLayoutBinding  descriptor_set_layout_binding;
+    //VkDescriptorSetLayoutBinding  descriptor_set_layout_binding;
 };
 
 struct GXSet_s
 {
     char                          *name;
     size_t                         index;
-    VkDescriptorSetLayout          set_layout;
-    VkDescriptorSetLayoutBinding  *p_bindings;
+    //VkDescriptorSetLayout          set_layout;
+    //VkDescriptorSetLayoutBinding  *p_bindings;
     size_t                         descriptor_count;
     GXDescriptor_t               **descriptors_data;
 };

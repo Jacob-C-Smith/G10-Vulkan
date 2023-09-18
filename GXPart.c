@@ -438,8 +438,8 @@ int part_info ( GXPart_t *p_part )
         g_print_log("active material : \"%s\"\n", p_part->active_material->name);
 
     // Print the active shader
-    if (p_part->active_shader)
-        g_print_log("active shader   : \"%s\"\n", p_part->active_shader->name);
+    //if (p_part->active_shader)
+        //g_print_log("active shader   : \"%s\"\n", p_part->active_shader->name);
 
     // Print the vertex count
     if (p_part->vertex_count)
@@ -506,12 +506,12 @@ int destroy_part ( GXPart_t **pp_part )
     {
 
         // Free the vertex buffer
-        vkDestroyBuffer(p_instance->vulkan.device, p_part->vertex_buffer, 0);
-        vkFreeMemory(p_instance->vulkan.device, p_part->vertex_buffer_memory, 0);
+        //vkDestroyBuffer(p_instance->vulkan.device, p_part->vertex_buffer, 0);
+        //vkFreeMemory(p_instance->vulkan.device, p_part->vertex_buffer_memory, 0);
 
         // Free the index buffer
-        vkDestroyBuffer(p_instance->vulkan.device, p_part->element_buffer, 0);
-        vkFreeMemory(p_instance->vulkan.device, p_part->element_buffer_memory, 0);
+        //vkDestroyBuffer(p_instance->vulkan.device, p_part->element_buffer, 0);
+        //vkFreeMemory(p_instance->vulkan.device, p_part->element_buffer_memory, 0);
     }
 
     // Free the part itself

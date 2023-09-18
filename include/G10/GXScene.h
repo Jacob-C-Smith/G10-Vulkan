@@ -28,7 +28,7 @@
 #include <G10/GXEntity.h>
 #include <G10/GXCamera.h>
 #include <G10/GXLight.h>
-#include <G10/GXShader.h>
+//#include <G10/GXShader.h>
 
 struct GXScene_s
 {

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 // Vulkan
-#include <vulkan/vulkan.h>
+//#include <vulkan/vulkan.h>
 
 #include <G10/GXtypedef.h>
 #include <G10/GXPart.h>
@@ -596,7 +596,7 @@ GXPart_t *load_ply ( GXPart_t *part, const char *path )
     part->index_count = indices_in_buffer;
 
     // Populate the part
-    {
+    /*{
 
         part->vertex_count = vertices_in_buffer;
         extern u32 find_memory_type(u32 type_filter, VkMemoryPropertyFlags properties);
@@ -681,7 +681,7 @@ GXPart_t *load_ply ( GXPart_t *part, const char *path )
         free(buffer_create_info);
         free(allocate_info);
 
-    }
+    }*/
 
 
     // Destroy the PLY File

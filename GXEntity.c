@@ -993,7 +993,7 @@ int load_light_probe_from_queue ( GXInstance_t *p_instance )
     // Error
     return 0;
 }
-
+/*
 int draw_entity ( GXEntity_t *p_entity )
 {
 
@@ -1001,7 +1001,6 @@ int draw_entity ( GXEntity_t *p_entity )
     //#ifndef NDEBUG
     if ( p_entity == (void *) 0 ) goto no_entity;
     
-    /*
     if (p_entity->parts == 0)
         return 0;
 
@@ -1043,7 +1042,7 @@ int draw_entity ( GXEntity_t *p_entity )
         //draw_part(parts[i]);
     }
 
-    free(parts);*/
+    free(parts);
 
     // Success
     return 1;
@@ -1063,7 +1062,7 @@ int draw_entity ( GXEntity_t *p_entity )
         }
     }
 }
-
+*/
 int destroy_entity ( GXEntity_t **pp_entity )
 {
 

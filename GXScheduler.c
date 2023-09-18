@@ -53,7 +53,7 @@ void *task_function_pointers[TASK_COUNT] = {
     &update_forces,
     &move_objects,
     0,//&update_rigs,
-    &render_frame,
+    0,//&render_frame,
     0,//&present_frame,
     0,//&load_entity_from_queue,
     0,//&load_light_probe_from_queue,

@@ -27,7 +27,7 @@
 #include <string.h>
 
 // Vulkan
-#include <vulkan/vulkan.h>
+//#include <vulkan/vulkan.h>
 
 // SDL 2
 #include <SDL.h>
@@ -58,7 +58,7 @@
 // G10
 #include <G10/GXtypedef.h>
 #include <G10/GXScene.h>
-#include <G10/GXRenderer.h>
+//#include <G10/GXRenderer.h>
 #include <G10/GXInput.h>
 #include <G10/GXScheduler.h>
 #include <G10/GXMaterial.h>
@@ -134,7 +134,7 @@ struct GXInstance_s
     } sdl2;
 
     // Vulkan
-    struct
+    /*struct
     {
         VkInstance                instance;
 
@@ -201,7 +201,7 @@ struct GXInstance_s
                      transfer_family_count;
             float    priority[8];
         } queues;
-    } vulkan;
+    } vulkan;*/
 
     // Window parameters
     struct
@@ -348,7 +348,7 @@ DLLEXPORT int g_init ( GXInstance_t **pp_instance, const char *path );
  * @param buffer_memory :
  * @return 1 on success, 0 on error
  */
-DLLEXPORT void create_buffer ( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer *buffer, VkDeviceMemory *buffer_memory );
+//DLLEXPORT void create_buffer ( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer *buffer, VkDeviceMemory *buffer_memory );
 
 // File operations
 /** !

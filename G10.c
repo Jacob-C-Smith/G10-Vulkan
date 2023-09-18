@@ -74,7 +74,7 @@ void create_image_views     ( void );
 void create_command_pool    ( void );
 void create_command_buffers ( void );
 
-
+/*
 void create_buffer          ( VkDeviceSize  size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer *buffer, VkDeviceMemory *buffer_memory );
 u32  find_memory_type       ( u32 type_filter, VkMemoryPropertyFlags properties );
 int  check_vulkan_device    ( GXInstance_t *p_instance , VkPhysicalDevice physical_device, char **required_extension_names);
@@ -119,6 +119,7 @@ VkResult CreateDebugUtilsMessengerEXT ( VkInstance instance, const VkDebugUtilsM
     else
         return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
+*/
 
 int g_init ( GXInstance_t **pp_instance, const char *path )
 {
@@ -360,6 +361,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
             goto failed_to_initialize_sdl2;
 
         // Vulkan initialization
+        /*
         if ( p_vulkan )
         {
 
@@ -440,7 +442,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         // Default
         else
             goto no_vulkan_property;
-
+        */
         // G10 Initialization
         {
 
@@ -630,12 +632,13 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
             }
 
             // Load a renderer
+            /*
             if ( p_renderer )
             {
 
                 // Parse the renderer as a JSON value
                 if ( load_renderer_as_json_value(&p_instance->context.renderer, p_renderer) == 0 ) goto failed_to_load_schedule;
-            }
+            }*/
 
             // Load an input
             if ( p_input )
@@ -1150,7 +1153,7 @@ int g_init ( GXInstance_t **pp_instance, const char *path )
         }
     }
 }
-
+/*
 int setup_debug_messenger ( VkDebugUtilsMessengerCreateInfoEXT **debug_messenger_create_info )
 {
 
@@ -3340,7 +3343,7 @@ int g_construct_vulkan_sync_objects ( JSONValue_t *p_value )
 void create_swap_chain ( void )
 {
 
-    /*// Uninitialized data
+    // Uninitialized data
     VkSurfaceFormatKHR        surface_format;
     VkExtent2D                extent;
 
@@ -3408,7 +3411,6 @@ void create_swap_chain ( void )
 
     p_instance->vulkan.swap_chain.image_format = surface_format.format;
     p_instance->vulkan.swap_chain.extent       = extent;
-    */
 }
 
 void cleanup_swap_chain ( void )
@@ -3736,7 +3738,7 @@ void create_buffer ( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryProper
         vkBindBufferMemory(p_instance->vulkan.device, *buffer, *buffer_memory, 0);
     }
 }
-
+*/
 size_t g_load_file ( const char *path, void *buffer, bool binary_mode )
 {
 
@@ -3793,7 +3795,7 @@ size_t g_load_file ( const char *path, void *buffer, bool binary_mode )
         }
     }
 }
-
+/*
 void clear_swap_chain ( void )
 {
     GXInstance_t *p_instance = g_get_active_instance();
@@ -3802,6 +3804,7 @@ void clear_swap_chain ( void )
 
     vkDestroySwapchainKHR(p_instance->vulkan.device, p_instance->vulkan.swap_chain.swap_chain, 0);
 }
+*/
 
 int g_window_resize ( GXInstance_t *p_instance )
 {
@@ -4435,6 +4438,7 @@ int g_cache_part ( GXInstance_t *p_instance, GXPart_t *p_part )
     }
 }
 
+/*
 int g_cache_shader ( GXInstance_t *p_instance, GXShader_t *p_shader )
 {
 
@@ -4477,7 +4481,7 @@ int g_cache_shader ( GXInstance_t *p_instance, GXShader_t *p_shader )
 
     }
 }
-
+*/
 int g_cache_ai ( GXInstance_t *p_instance, GXAI_t *p_ai )
 {
 
@@ -4748,7 +4752,7 @@ int g_exit ( GXInstance_t **pp_instance )
     p_instance->running = false;
 
     // Wait for the GPU to finish whatever its doing
-    vkDeviceWaitIdle(p_instance->vulkan.device);
+    //vkDeviceWaitIdle(p_instance->vulkan.device);
 
     // Cleanup the instance
     {
@@ -4772,8 +4776,8 @@ int g_exit ( GXInstance_t **pp_instance )
             p_instance->context.loading_scene = 0;
 
             // ... and the active renderer ...
-            if ( p_instance->context.renderer )
-                if ( destroy_renderer(&p_instance->context.renderer) == 0 ) goto failed_to_destroy_renderer;
+            //if ( p_instance->context.renderer )
+            //    if ( destroy_renderer(&p_instance->context.renderer) == 0 ) goto failed_to_destroy_renderer;
 
             // ... and the user code callback
             p_instance->context.user_code_callback = 0;
@@ -4791,7 +4795,7 @@ int g_exit ( GXInstance_t **pp_instance )
 
         // Clean up the cache
         {
-
+            /*
             // Initialized data
             size_t     len      = dict_values(p_instance->cache.parts,  0);
             GXPart_t **pp_parts = calloc(len, sizeof(GXPart_t *));
@@ -4818,6 +4822,7 @@ int g_exit ( GXInstance_t **pp_instance )
 
             // Destroy the part cache            
             dict_destroy(&p_instance->cache.parts);
+            */
         }
 
         // Cleanup mutexes
@@ -4900,16 +4905,16 @@ int g_exit ( GXInstance_t **pp_instance )
     {
 
         // Clear the swapchain
-        clear_swap_chain();
+        //clear_swap_chain();
 
         // Destroy the logical device
-        vkDestroyDevice(p_instance->vulkan.device, (void*)0);
+        //vkDestroyDevice(p_instance->vulkan.device, (void*)0);
 
         // Destroy the surface
-        vkDestroySurfaceKHR(p_instance->vulkan.instance, p_instance->vulkan.surface, (void*) 0);
+        //vkDestroySurfaceKHR(p_instance->vulkan.instance, p_instance->vulkan.surface, (void*) 0);
 
         // Destroy the instance
-        vkDestroyInstance(p_instance->vulkan.instance, (void*) 0) ;
+        //vkDestroyInstance(p_instance->vulkan.instance, (void*) 0) ;
     }
 
     // Clean up FMOD

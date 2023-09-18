@@ -15,12 +15,12 @@
 #include <string.h>
 
 // Vulkan
-#include <vulkan/vulkan.h>
+//#include <vulkan/vulkan.h>
 
 // G10
 #include <G10/GXtypedef.h>
 #include <G10/G10.h>
-#include <G10/GXShader.h>
+//#include <G10/GXShader.h>
 #include <G10/GXCameraController.h>
 
 struct GXRenderer_s

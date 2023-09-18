@@ -30,7 +30,7 @@
 #include <G10/G10.h>
 #include <G10/GXScene.h>
 #include <G10/GXPhysics.h>
-#include <G10/GXRenderer.h>
+//#include <G10/GXRenderer.h>
 #include <G10/GXInput.h>
 #include <G10/GXServer.h>
 #include <G10/GXUI.h>

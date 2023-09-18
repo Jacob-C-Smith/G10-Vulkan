@@ -89,6 +89,15 @@ int user_code_callback ( GXInstance_t *p_instance )
     return 1;
 }
 
+int gets_called_once_a_tick ( GXInstance_t *p_instance )
+{
+
+    printf("WE DID IT COMRADE!\n");
+
+    return 1;
+}
+
+
 int game_initialization ( GXInstance_t *p_instance )
 {
     
@@ -121,9 +130,13 @@ int game_initialization ( GXInstance_t *p_instance )
         (void) register_bind_callback(p_help, &g_user_help);
     }
 
+    // Set user code callback
+    add_user_code_callback(p_instance, &gets_called_once_a_tick);
+
     // Success
     return 1;
 }
+
 
 int game_log ( GXInstance_t *p_instance )
 {
@@ -132,7 +145,7 @@ int game_log ( GXInstance_t *p_instance )
     (void) input_info(p_instance->input);
 
     // Print the renderer
-    (void) print_renderer(p_instance->context.renderer);
+    //(void) print_renderer(p_instance->context.renderer);
 
     // Print the scene
     (void) scene_info(p_instance->context.scene);

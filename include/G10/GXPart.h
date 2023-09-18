@@ -22,7 +22,7 @@
 #include <SDL.h>
 
 // Vulkan
-#include <vulkan/vulkan.h>
+//#include <vulkan/vulkan.h>
 
 // dict submodule
 #include <dict/dict.h>
@@ -38,11 +38,11 @@ struct GXPart_s
 	GXShader_t     *active_shader;
 	GXTransform_t  *p_transform;
 
-	VkBuffer        vertex_buffer,
+	/*VkBuffer        vertex_buffer,
 	                element_buffer;
 	VkDeviceMemory  vertex_buffer_memory,
 	                element_buffer_memory;
-
+	*/
 	size_t          vertex_count,
 	                index_count,
 		            users;
